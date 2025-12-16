@@ -223,7 +223,7 @@ Test any WebSocket endpoint instantly in your browser! Click on WebSocket links 
 
 - **[New York Times Newswire API](https://developer.nytimes.com/docs/timeswire-product/1/overview)** - Up-to-the-minute stream of published NYT articles. Free API key required.
 
-- **[Hacker News API](https://github.com/HackerNews/API)** - Near real-time tech news with WebSocket support. Firebase-based, no authentication.
+- **[Hacker News API](https://github.com/HackerNews/API)** - Near real-time tech news. Firebase-based, no authentication. Supports both REST and SSE (set Accept header to `text/event-stream`). [🟡 Try SSE live](https://conduktor.github.io/public-streaming-api/?sse=https://hacker-news.firebaseio.com/v0/topstories.json)
   ```
   https://hacker-news.firebaseio.com/v0/topstories.json
   https://hacker-news.firebaseio.com/v0/newstories.json
@@ -326,12 +326,29 @@ Test any WebSocket endpoint instantly in your browser! Click on WebSocket links 
 
 ## Social & Community
 
+### Social Media Streams
+
 - **[Bluesky Firehose](https://docs.bsky.app/docs/advanced-guides/firehose)** - WebSocket stream of all public posts on the Bluesky social network. Requires authentication.
 
-- **[Mastodon Streaming API](https://docs.joinmastodon.org/methods/streaming/)** - Real-time posts from Mastodon instances. Public timeline accessible without auth on many instances. [🔴 Try it live](https://conduktor.github.io/public-streaming-api/?wss=wss://mastodon.social/api/v1/streaming/public)
+- **[Mastodon Streaming API](https://docs.joinmastodon.org/methods/streaming/)** - Real-time posts from Mastodon instances. Supports both WebSocket and SSE. Public timeline accessible without auth on many instances.
+  - **WebSocket:** [🔴 Try it live](https://conduktor.github.io/public-streaming-api/?wss=wss://mastodon.social/api/v1/streaming/public)
+    ```
+    wss://mastodon.social/api/v1/streaming/public
+    ```
+  - **SSE:** [🟡 Try it live](https://conduktor.github.io/public-streaming-api/?sse=https://mastodon.social/api/v1/streaming/public)
+    ```
+    https://mastodon.social/api/v1/streaming/public
+    https://mastodon.social/api/v1/streaming/user (requires auth)
+    https://mastodon.social/api/v1/streaming/public/local
+    ```
+
+- **[Pushshift Reddit Stream](https://github.com/pushshift/reddit_sse_stream)** - Near real-time Reddit comments and submissions via SSE (2-3 second delay). No authentication. ⚠️ Service availability may be intermittent. [🟡 Try it live](https://conduktor.github.io/public-streaming-api/?sse=http://stream.pushshift.io/?type=comments)
   ```
-  wss://mastodon.social/api/v1/streaming/public
+  http://stream.pushshift.io/?type=comments
+  http://stream.pushshift.io/?type=submissions
+  http://stream.pushshift.io/?type=comments&subreddit=python,javascript
   ```
+  **Note:** HTTP only (no SSL), one connection per IP.
 
 - **[Reddit JSON Feeds](https://www.reddit.com/)** - Real-time posts from any subreddit. Add `.json` to any Reddit URL. Note: May require User-Agent header or may block automated access.
   ```bash
