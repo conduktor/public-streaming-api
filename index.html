@@ -591,7 +591,17 @@
                     <div style="display: flex; gap: 0.5rem; flex: 1; align-items: center;">
                         <input type="text" id="textFilter" placeholder="Filter text..." oninput="applyFilters()" style="flex: 1; min-width: 120px; padding: 0.5rem 0.75rem; font-size: 0.875rem;">
                         <input type="text" id="jsonPathFilter" placeholder="JSONPath ($.field)..." oninput="applyFilters()" style="flex: 1; min-width: 120px; padding: 0.5rem 0.75rem; font-size: 0.875rem;">
-                        <button onclick="togglePause()" id="pauseBtn" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">⏸ Pause</button>
+                        <div id="pollingControls" style="display: none; gap: 0.5rem; align-items: center;">
+                            <button onclick="refreshNow()" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">🔄 Refresh</button>
+                            <button onclick="toggleAutoRefresh()" id="autoRefreshBtn" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">▶ Auto</button>
+                            <select id="pollingInterval" style="padding: 0.5rem; font-size: 0.875rem; border: 2px solid #e2e8f0; border-radius: 6px;">
+                                <option value="5000">5s</option>
+                                <option value="10000" selected>10s</option>
+                                <option value="30000">30s</option>
+                                <option value="60000">60s</option>
+                            </select>
+                        </div>
+                        <button onclick="togglePause()" id="pauseBtn" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem; display: none;">⏸ Pause</button>
                         <button onclick="clearOutput()" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Clear</button>
                         <button onclick="exportData()" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">📥 Export</button>
                     </div>
@@ -645,6 +655,11 @@
         let rateChart = null;
         let rateCtx = null;
 
+        // HTTP polling variables
+        let pollingInterval = null;
+        let autoRefreshEnabled = false;
+        let currentHttpUrl = null;
+
         // Initialize chart
         const canvas = document.getElementById('rateChart');
         rateCtx = canvas.getContext('2d');
@@ -695,17 +710,36 @@
             if (url.startsWith('wss://') || url.startsWith('ws://')) {
                 return 'ws';
             } else if (url.startsWith('https://') || url.startsWith('http://')) {
-                return 'sse';
+                // Check if it's SSE by trying to detect event-stream endpoints
+                // Common SSE patterns: /stream, /sse, /events, or specific SSE domains
+                if (url.includes('/stream') || url.includes('/sse') ||
+                    url.includes('stream.wikimedia.org') || url.includes('dexpaprika.com/sse') ||
+                    url.includes('mastodon') || url.includes('firebaseio.com')) {
+                    return 'sse';
+                }
+                return 'http'; // Regular REST endpoint
             }
             return 'ws'; // default
         }
 
         function updateProtocolBadge(type) {
             const badge = document.getElementById('protocolBadge');
-            badge.textContent = type === 'ws' ? 'WSS' : 'SSE';
-            badge.style.background = type === 'ws' ? '#f0f4ff' : '#fef3c7';
-            badge.style.borderColor = type === 'ws' ? '#667eea' : '#f59e0b';
-            badge.style.color = type === 'ws' ? '#667eea' : '#92400e';
+            if (type === 'ws') {
+                badge.textContent = 'WSS';
+                badge.style.background = '#f0f4ff';
+                badge.style.borderColor = '#667eea';
+                badge.style.color = '#667eea';
+            } else if (type === 'sse') {
+                badge.textContent = 'SSE';
+                badge.style.background = '#fef3c7';
+                badge.style.borderColor = '#f59e0b';
+                badge.style.color = '#92400e';
+            } else {
+                badge.textContent = 'HTTP';
+                badge.style.background = '#e0f2fe';
+                badge.style.borderColor = '#0284c7';
+                badge.style.color = '#0284c7';
+            }
         }
 
         document.getElementById('streamUrl').addEventListener('input', (e) => {
@@ -756,8 +790,12 @@
             try {
                 if (connectionType === 'ws') {
                     connectWebSocket(url);
-                } else {
+                    document.getElementById('pauseBtn').style.display = 'inline-block';
+                } else if (connectionType === 'sse') {
                     connectSSE(url);
+                    document.getElementById('pauseBtn').style.display = 'inline-block';
+                } else {
+                    connectHTTP(url);
                 }
                 saveToHistory(url, connectionType);
             } catch (error) {
@@ -867,15 +905,108 @@
             };
         }
 
+        async function connectHTTP(url) {
+            connectionType = 'http';
+            currentHttpUrl = url;
+
+            document.getElementById('statusIndicator2').className = 'status-indicator connected';
+            document.getElementById('pollingControls').style.display = 'flex';
+            document.getElementById('pauseBtn').style.display = 'none';
+            connectionStartTime = Date.now();
+            startTimer();
+
+            // Initial fetch
+            await fetchHTTP(url);
+        }
+
+        async function fetchHTTP(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.text();
+
+                messageCount++;
+                totalBytes += new Blob([data]).size;
+                updateStats();
+
+                try {
+                    const parsed = JSON.parse(data);
+                    allMessages.push({ timestamp: Date.now(), data: parsed });
+                    addMessage('data', JSON.stringify(parsed, null, 2));
+                } catch (e) {
+                    allMessages.push({ timestamp: Date.now(), data: data });
+                    addMessage('data', data);
+                }
+                updateChart();
+
+            } catch (error) {
+                addMessage('error', `Fetch error: ${error.message}`);
+            }
+        }
+
+        function refreshNow() {
+            if (currentHttpUrl) {
+                fetchHTTP(currentHttpUrl);
+            }
+        }
+
+        function toggleAutoRefresh() {
+            autoRefreshEnabled = !autoRefreshEnabled;
+            const btn = document.getElementById('autoRefreshBtn');
+
+            if (autoRefreshEnabled) {
+                btn.textContent = '⏸ Auto';
+                btn.style.background = '#667eea';
+                btn.style.color = 'white';
+                startPolling();
+            } else {
+                btn.textContent = '▶ Auto';
+                btn.style.background = '';
+                btn.style.color = '';
+                stopPolling();
+            }
+        }
+
+        function startPolling() {
+            const interval = parseInt(document.getElementById('pollingInterval').value);
+            pollingInterval = setInterval(() => {
+                if (currentHttpUrl) {
+                    fetchHTTP(currentHttpUrl);
+                }
+            }, interval);
+        }
+
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+        }
+
         function disconnect() {
             if (connection) {
                 if (connectionType === 'ws') {
                     connection.close();
-                } else {
+                } else if (connectionType === 'sse') {
                     connection.close();
                 }
                 connection = null;
             }
+
+            // Stop HTTP polling
+            if (connectionType === 'http') {
+                stopPolling();
+                autoRefreshEnabled = false;
+                currentHttpUrl = null;
+                document.getElementById('pollingControls').style.display = 'none';
+                document.getElementById('autoRefreshBtn').textContent = '▶ Auto';
+                document.getElementById('autoRefreshBtn').style.background = '';
+                document.getElementById('autoRefreshBtn').style.color = '';
+            }
+
             messageRates = [];
             lastChartUpdate = Date.now();
             lastMessageCount = 0;
@@ -1272,6 +1403,63 @@ eventSource.onerror = (error) => {
                 // cURL SSE
                 document.getElementById('curlSnippet').textContent =
 `curl -N -H "Accept: text/event-stream" '${escapedUrl}'`;
+            } else {
+                // HTTP Polling - Python
+                document.getElementById('pythonSnippet').textContent =
+`import requests
+import json
+import time
+
+url = '${escapedUrl}'
+poll_interval = 10  # seconds
+
+while True:
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+
+        try:
+            data = response.json()
+            print(json.dumps(data, indent=2))
+        except json.JSONDecodeError:
+            print(response.text)
+
+        time.sleep(poll_interval)
+    except Exception as e:
+        print(f"Error: {e}")
+        time.sleep(poll_interval)`;
+
+                // HTTP Polling - JavaScript
+                document.getElementById('javascriptSnippet').textContent =
+`const url = '${escapedUrl}';
+const pollInterval = 10000; // 10 seconds
+
+async function fetchData() {
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        console.log(JSON.stringify(data, null, 2));
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+// Initial fetch
+fetchData();
+
+// Poll at interval
+setInterval(fetchData, pollInterval);`;
+
+                // cURL HTTP
+                document.getElementById('curlSnippet').textContent =
+`# Single request
+curl '${escapedUrl}'
+
+# Poll every 10 seconds (bash)
+while true; do
+    curl '${escapedUrl}'
+    sleep 10
+done`;
             }
         }
 
