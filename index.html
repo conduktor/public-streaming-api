@@ -522,8 +522,8 @@
                     <div class="example-link sse" onclick="setUrl('https://stream.wikimedia.org/v2/stream/page-create', 'sse')">
                         <span class="protocol">SSE</span>Wiki Pages
                     </div>
-                    <div class="example-link" onclick="setUrl('wss://mastodon.social/api/v1/streaming/public', 'ws')">
-                        <span class="protocol">WSS</span>Mastodon
+                    <div class="example-link" onclick="setUrl('wss://ws.kraken.com/', 'ws')">
+                        <span class="protocol">WSS</span>Kraken
                     </div>
                 </div>
             </div>
@@ -758,6 +758,25 @@
                 connectionStartTime = Date.now();
                 startTimer();
                 addMessage('info', 'WebSocket connection established');
+
+                // Send subscription messages for exchanges that require them
+                if (url.includes('coinbase.com') || url.includes('ws-feed.exchange')) {
+                    const subscribeMsg = {
+                        type: "subscribe",
+                        product_ids: ["BTC-USD", "ETH-USD"],
+                        channels: ["ticker", "matches"]
+                    };
+                    connection.send(JSON.stringify(subscribeMsg));
+                    addMessage('info', 'Sent Coinbase subscription: ' + JSON.stringify(subscribeMsg, null, 2));
+                } else if (url.includes('kraken.com')) {
+                    const subscribeMsg = {
+                        event: "subscribe",
+                        pair: ["XBT/USD", "ETH/USD"],
+                        subscription: { name: "trade" }
+                    };
+                    connection.send(JSON.stringify(subscribeMsg));
+                    addMessage('info', 'Sent Kraken subscription: ' + JSON.stringify(subscribeMsg, null, 2));
+                }
             };
 
             connection.onmessage = (event) => {
