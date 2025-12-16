@@ -1328,34 +1328,38 @@
             let config = {};
 
             if (type === 'ws' || type === 'wss') {
+                // Using Kafka Connect HTTP plugin or custom connector
                 config = {
                     "name": `websocket-source-${connectorName}`,
                     "config": {
-                        "connector.class": "io.conduktor.connect.http.HttpSourceConnector",
+                        "connector.class": "com.github.castorm.kafka.connect.http.HttpSourceConnector",
                         "tasks.max": "1",
-                        "url": url,
-                        "method": "WEBSOCKET",
+                        "http.url": url,
+                        "http.request.method": "GET",
                         "kafka.topic": topicName,
-                        "mode": "streaming",
+                        "http.timer.interval.millis": "1000",
                         "value.converter": "org.apache.kafka.connect.json.JsonConverter",
                         "value.converter.schemas.enable": "false",
-                        "key.converter": "org.apache.kafka.connect.storage.StringConverter"
+                        "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+                        "_comment": "Note: WebSocket requires custom connector or proxy. Consider using https://github.com/castorm/kafka-connect-http"
                     }
                 };
             } else if (type === 'sse') {
+                // SSE using HTTP Source Connector
                 config = {
                     "name": `sse-source-${connectorName}`,
                     "config": {
-                        "connector.class": "io.conduktor.connect.http.HttpSourceConnector",
+                        "connector.class": "com.github.castorm.kafka.connect.http.HttpSourceConnector",
                         "tasks.max": "1",
-                        "url": url,
-                        "method": "GET",
-                        "headers": "Accept: text/event-stream",
+                        "http.url": url,
+                        "http.request.method": "GET",
+                        "http.request.headers": "Accept: text/event-stream",
                         "kafka.topic": topicName,
-                        "mode": "streaming",
+                        "http.response.parser": "com.github.castorm.kafka.connect.http.response.spi.HttpResponseParser",
                         "value.converter": "org.apache.kafka.connect.json.JsonConverter",
                         "value.converter.schemas.enable": "false",
-                        "key.converter": "org.apache.kafka.connect.storage.StringConverter"
+                        "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+                        "_comment": "Requires kafka-connect-http plugin: https://github.com/castorm/kafka-connect-http"
                     }
                 };
             } else {
@@ -1364,16 +1368,17 @@
                 config = {
                     "name": `http-source-${connectorName}`,
                     "config": {
-                        "connector.class": "io.conduktor.connect.http.HttpSourceConnector",
+                        "connector.class": "com.github.castorm.kafka.connect.http.HttpSourceConnector",
                         "tasks.max": "1",
-                        "url": url,
-                        "method": "GET",
+                        "http.url": url,
+                        "http.request.method": "GET",
                         "kafka.topic": topicName,
-                        "mode": "polling",
-                        "polling.interval.ms": interval,
+                        "http.timer.interval.millis": interval,
+                        "http.response.parser": "com.github.castorm.kafka.connect.http.response.spi.HttpResponseParser",
                         "value.converter": "org.apache.kafka.connect.json.JsonConverter",
                         "value.converter.schemas.enable": "false",
-                        "key.converter": "org.apache.kafka.connect.storage.StringConverter"
+                        "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+                        "_comment": "Requires kafka-connect-http plugin: https://github.com/castorm/kafka-connect-http"
                     }
                 };
             }
