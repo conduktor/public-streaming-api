@@ -388,6 +388,13 @@
 
         function addMessage(type, content) {
             const output = document.getElementById('output');
+
+            // Remove placeholder message if it exists
+            const placeholder = output.querySelector('[style*="text-align: center"]');
+            if (placeholder) {
+                placeholder.remove();
+            }
+
             const message = document.createElement('div');
             message.className = 'message';
 
@@ -396,10 +403,6 @@
                 <div class="message-time">${time}</div>
                 <div class="message-content">${content}</div>
             `;
-
-            if (output.firstChild && output.firstChild.style) {
-                output.firstChild.remove();
-            }
 
             output.insertBefore(message, output.firstChild);
 
