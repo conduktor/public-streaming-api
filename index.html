@@ -436,6 +436,45 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        .scroll-to-top {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.25rem;
+            line-height: 1;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 10;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scroll-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-to-top:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+        }
+
+        .output-wrapper {
+            position: relative;
+        }
     </style>
 </head>
 <body>
@@ -539,10 +578,13 @@
                         <button onclick="exportData()" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">📥 Export</button>
                     </div>
                 </div>
-                <div id="output" class="output-container">
-                    <div style="text-align: center; color: #718096; padding: 2rem;">
-                        Enter a stream URL above and click Connect to start streaming data...
+                <div class="output-wrapper">
+                    <div id="output" class="output-container">
+                        <div style="text-align: center; color: #718096; padding: 2rem;">
+                            Enter a stream URL above and click Connect to start streaming data...
+                        </div>
                     </div>
+                    <button id="scrollToTopBtn" class="scroll-to-top" onclick="scrollOutputToTop()">↑</button>
                 </div>
             </div>
 
@@ -1210,6 +1252,25 @@ eventSource.onerror = (error) => {
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
+        }
+
+        // Scroll to top functionality
+        const outputContainer = document.getElementById('output');
+        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+
+        outputContainer.addEventListener('scroll', () => {
+            if (outputContainer.scrollTop > 200) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        });
+
+        function scrollOutputToTop() {
+            outputContainer.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         }
 
         // Handle Enter key
