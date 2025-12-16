@@ -844,6 +844,7 @@
 
             messages.forEach(msg => {
                 const content = msg.dataset.content || '';
+                const originalContent = msg.dataset.originalContent || '';
                 let show = true;
 
                 // Text filter
@@ -855,9 +856,17 @@
                 if (show && jsonPath) {
                     try {
                         const contentEl = msg.querySelector('.message-content');
-                        const text = contentEl.textContent;
-                        const json = JSON.parse(text);
+
+                        // Restore original content if we're re-filtering
+                        if (originalContent && !msg.dataset.originalContent) {
+                            msg.dataset.originalContent = originalContent;
+                        } else if (!msg.dataset.originalContent) {
+                            msg.dataset.originalContent = contentEl.textContent;
+                        }
+
+                        const json = JSON.parse(msg.dataset.originalContent);
                         const value = extractJsonPath(json, jsonPath);
+
                         if (value !== undefined) {
                             contentEl.textContent = typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value);
                         } else {
@@ -867,6 +876,10 @@
                         // Not valid JSON or path not found
                         if (jsonPath) show = false;
                     }
+                } else if (!jsonPath && msg.dataset.originalContent) {
+                    // Restore original content when filter is removed
+                    const contentEl = msg.querySelector('.message-content');
+                    contentEl.textContent = msg.dataset.originalContent;
                 }
 
                 if (show) {
