@@ -213,32 +213,6 @@
             color: #92400e;
         }
 
-        .filter-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            padding: 1rem;
-            background: #f7fafc;
-            border-radius: 8px;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .filter-group label {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #4a5568;
-        }
-
-        .filter-group input {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-        }
 
         .toolbar {
             display: flex;
@@ -556,23 +530,14 @@
             </div>
 
             <div id="streamTab" class="tab-content active">
-                <div class="filter-section">
-                    <div class="filter-group">
-                        <label for="textFilter">Text Filter (case-insensitive)</label>
-                        <input type="text" id="textFilter" placeholder="Filter by text content..." oninput="applyFilters()">
-                    </div>
-                    <div class="filter-group">
-                        <label for="jsonPathFilter">JSONPath Filter (e.g., $.price or $.data.event)</label>
-                        <input type="text" id="jsonPathFilter" placeholder="Extract JSON field..." oninput="applyFilters()">
-                    </div>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2 style="font-size: 1.25rem; color: #2d3748;">Live Stream (latest first)</h2>
-                    <div class="toolbar">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; gap: 1rem;">
+                    <h2 style="font-size: 1.25rem; color: #2d3748; white-space: nowrap;">Live Stream (latest first)</h2>
+                    <div style="display: flex; gap: 0.5rem; flex: 1; align-items: center;">
+                        <input type="text" id="textFilter" placeholder="Filter text..." oninput="applyFilters()" style="flex: 1; min-width: 120px; padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+                        <input type="text" id="jsonPathFilter" placeholder="JSONPath ($.field)..." oninput="applyFilters()" style="flex: 1; min-width: 120px; padding: 0.5rem 0.75rem; font-size: 0.875rem;">
                         <button onclick="togglePause()" id="pauseBtn" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">⏸ Pause</button>
                         <button onclick="clearOutput()" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Clear</button>
-                        <button onclick="exportData()" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">📥 Export JSON</button>
+                        <button onclick="exportData()" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">📥 Export</button>
                     </div>
                 </div>
                 <div id="output" class="output-container">
