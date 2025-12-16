@@ -53,6 +53,13 @@ Test any WebSocket endpoint instantly in your browser! Click on WebSocket links 
   wss://ws.kraken.com
   ```
 
+### Cryptocurrency Market Data (SSE)
+
+- **[DexPaprika SSE](https://coinpaprika.com/education/best-free-dex-api-2025-dexpaprika-vs-dextools-vs-geckoterminal-vs-dexscreener-vs-birdeye/)** - Real-time cryptocurrency prices and DEX data via Server-Sent Events. Multi-chain support. No authentication. [🟡 Try it live](https://conduktor.github.io/public-streaming-api/?sse=https://mcp.dexpaprika.com/sse)
+  ```
+  https://mcp.dexpaprika.com/sse
+  ```
+
 ### Market Data APIs
 
 - **[CoinGecko API](https://www.coingecko.com/en/api)** - Real-time prices for 12,000+ cryptocurrencies. Free tier: 50 calls/minute, no API key needed for basic endpoints.
@@ -203,10 +210,14 @@ Test any WebSocket endpoint instantly in your browser! Click on WebSocket links 
 
 ### Wikipedia & Wikimedia
 
-- **[Wikimedia EventStreams](https://wikitech.wikimedia.org/wiki/Event_Platform/EventStreams)** - Server-Sent Events (SSE) stream of real-time edits to Wikipedia and other Wikimedia projects. No authentication required.
+- **[Wikimedia EventStreams](https://wikitech.wikimedia.org/wiki/Event_Platform/EventStreams)** - Server-Sent Events (SSE) stream of real-time edits to Wikipedia and other Wikimedia projects. No authentication required. [🟡 Try it live](https://conduktor.github.io/public-streaming-api/?sse=https://stream.wikimedia.org/v2/stream/recentchange)
   ```bash
   curl -N https://stream.wikimedia.org/v2/stream/recentchange
   ```
+  **Additional streams:**
+  - Page creation: `https://stream.wikimedia.org/v2/stream/page-create`
+  - Page deletion: `https://stream.wikimedia.org/v2/stream/page-delete`
+  - Revision create: `https://stream.wikimedia.org/v2/stream/revision-create`
 
 ### News Feeds
 
@@ -357,6 +368,14 @@ Test any WebSocket endpoint instantly in your browser! Click on WebSocket links 
   ```
 
 - **[Sandy WebSocket Sandbox](https://www.gosandy.io/)** - Free WebSocket testing sandbox without code.
+
+### SSE Testing
+
+- **[SSE.dev Test Server](https://sse.dev/)** - Public SSE testing endpoint that sends test messages. Customizable interval and data. [🟡 Try it live](https://conduktor.github.io/public-streaming-api/?sse=https://sse.dev/test)
+  ```
+  https://sse.dev/test
+  https://sse.dev/test?interval=5000
+  ```
 
 ### Image Placeholders
 
