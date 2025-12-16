@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebSocket Stream Viewer - Public Real-Time Data Sources</title>
+    <title>WebSocket & SSE Stream Viewer - Public Real-Time Data Sources</title>
     <style>
         * {
             margin: 0;
@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -54,9 +54,14 @@
             margin-bottom: 1rem;
         }
 
-        input[type="text"] {
+        .input-wrapper {
             flex: 1;
-            padding: 0.75rem 1rem;
+            position: relative;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.75rem 3rem 0.75rem 1rem;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
             font-size: 1rem;
@@ -66,6 +71,29 @@
         input[type="text"]:focus {
             outline: none;
             border-color: #667eea;
+        }
+
+        .protocol-badge {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 0.25rem 0.5rem;
+            background: #f0f4ff;
+            border: 1px solid #667eea;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        select {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
         }
 
         button {
@@ -78,6 +106,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            white-space: nowrap;
         }
 
         button:hover {
@@ -95,6 +124,14 @@
 
         button.disconnect:hover {
             background: #dc2626;
+        }
+
+        button.secondary {
+            background: #718096;
+        }
+
+        button.secondary:hover {
+            background: #4a5568;
         }
 
         button:disabled {
@@ -160,6 +197,81 @@
             border-color: #cbd5e0;
         }
 
+        .example-link .protocol {
+            display: inline-block;
+            padding: 0.1rem 0.3rem;
+            background: #e6fffa;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #047857;
+            margin-right: 0.3rem;
+        }
+
+        .example-link.sse .protocol {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .filter-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .filter-group input {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .stat-value {
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-top: 0.25rem;
+        }
+
         .output-container {
             background: #1a202c;
             border-radius: 8px;
@@ -194,51 +306,192 @@
             word-break: break-word;
         }
 
-        .clear-btn {
-            margin-top: 1rem;
-            padding: 0.5rem 1rem;
-            background: #4a5568;
-            font-size: 0.875rem;
+        .message.filtered {
+            display: none;
         }
 
-        .clear-btn:hover {
+        .chart-container {
+            height: 150px;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f7fafc;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .history-dropdown {
+            position: relative;
+        }
+
+        .history-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 0.5rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .history-list.show {
+            display: block;
+        }
+
+        .history-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .history-item:hover {
+            background: #f7fafc;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item-url {
+            font-size: 0.875rem;
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .history-item-time {
+            font-size: 0.75rem;
+            color: #718096;
+            margin-top: 0.25rem;
+        }
+
+        .code-snippet {
+            background: #1a202c;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: #e2e8f0;
+            position: relative;
+        }
+
+        .code-snippet pre {
+            margin: 0;
+            overflow-x: auto;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #4a5568;
+            font-size: 0.75rem;
+        }
+
+        .copy-btn:hover {
             background: #2d3748;
         }
 
-        .stats {
+        .tabs {
             display: flex;
-            gap: 2rem;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e2e8f0;
-            font-size: 0.875rem;
-            color: #718096;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
         }
 
-        .stat-value {
-            color: #2d3748;
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
             font-weight: 600;
-            font-size: 1.25rem;
+            color: #718096;
+            transition: all 0.2s;
+            margin-bottom: -2px;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab:hover {
+            background: #f7fafc;
+            transform: none;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            background: #2d3748;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🌐 WebSocket Stream Viewer</h1>
-            <p class="subtitle">Connect to any WebSocket endpoint and view real-time data streams</p>
+            <h1>🌐 WebSocket & SSE Stream Viewer</h1>
+            <p class="subtitle">Connect to any real-time data stream and visualize it instantly</p>
         </header>
 
         <div class="card">
             <div class="input-group">
-                <input
-                    type="text"
-                    id="wsUrl"
-                    placeholder="Enter WebSocket URL (e.g., wss://stream.binance.com:9443/ws/btcusdt@trade)"
-                    value="wss://stream.binance.com:9443/ws/btcusdt@trade"
-                >
+                <div class="input-wrapper">
+                    <input
+                        type="text"
+                        id="streamUrl"
+                        placeholder="Enter WebSocket (wss://) or SSE (https://) URL"
+                        value="wss://stream.binance.com:9443/ws/btcusdt@trade"
+                    >
+                    <span class="protocol-badge" id="protocolBadge">WSS</span>
+                </div>
+                <select id="protocolSelect">
+                    <option value="auto">Auto-detect</option>
+                    <option value="ws">WebSocket</option>
+                    <option value="sse">SSE</option>
+                </select>
                 <button id="connectBtn" onclick="connect()">Connect</button>
                 <button id="disconnectBtn" onclick="disconnect()" style="display: none;" class="disconnect">Disconnect</button>
+                <div class="history-dropdown">
+                    <button onclick="toggleHistory()" class="secondary">History ▼</button>
+                    <div id="historyList" class="history-list"></div>
+                </div>
+                <button onclick="shareUrl()" class="secondary">Share 🔗</button>
             </div>
 
             <div id="status" class="status"></div>
@@ -246,131 +499,245 @@
             <div class="examples">
                 <h3>Quick Examples:</h3>
                 <div class="example-links">
-                    <div class="example-link" onclick="setUrl('wss://stream.binance.com:9443/ws/btcusdt@trade')">
-                        Binance BTC Trades
+                    <div class="example-link" onclick="setUrl('wss://stream.binance.com:9443/ws/btcusdt@trade', 'ws')">
+                        <span class="protocol">WSS</span>Binance BTC Trades
                     </div>
-                    <div class="example-link" onclick="setUrl('wss://ws.blockchain.info/inv')">
-                        Bitcoin Transactions
+                    <div class="example-link" onclick="setUrl('wss://ws.blockchain.info/inv', 'ws')">
+                        <span class="protocol">WSS</span>Bitcoin Transactions
                     </div>
-                    <div class="example-link" onclick="setUrl('wss://ws.kraken.com')">
-                        Kraken Market Data
+                    <div class="example-link" onclick="setUrl('wss://ws.kraken.com', 'ws')">
+                        <span class="protocol">WSS</span>Kraken Market Data
                     </div>
-                    <div class="example-link" onclick="setUrl('wss://www.seismicportal.eu/standing_order/websocket')">
-                        Earthquake Events
+                    <div class="example-link" onclick="setUrl('wss://www.seismicportal.eu/standing_order/websocket', 'ws')">
+                        <span class="protocol">WSS</span>Earthquake Events
                     </div>
-                    <div class="example-link" onclick="setUrl('wss://certstream.calidog.io')">
-                        SSL Certificates
+                    <div class="example-link" onclick="setUrl('wss://certstream.calidog.io', 'ws')">
+                        <span class="protocol">WSS</span>SSL Certificates
+                    </div>
+                    <div class="example-link sse" onclick="setUrl('https://stream.wikimedia.org/v2/stream/recentchange', 'sse')">
+                        <span class="protocol">SSE</span>Wikipedia Edits
                     </div>
                 </div>
             </div>
 
             <div class="stats">
-                <div>
-                    <div>Messages Received</div>
+                <div class="stat">
+                    <div class="stat-label">Messages</div>
                     <div class="stat-value" id="messageCount">0</div>
                 </div>
-                <div>
-                    <div>Data Received</div>
+                <div class="stat">
+                    <div class="stat-label">Data Received</div>
                     <div class="stat-value" id="dataSize">0 KB</div>
                 </div>
-                <div>
-                    <div>Connection Time</div>
+                <div class="stat">
+                    <div class="stat-label">Connection Time</div>
                     <div class="stat-value" id="connectionTime">--:--</div>
                 </div>
+                <div class="stat">
+                    <div class="stat-label">Msg/sec (avg)</div>
+                    <div class="stat-value" id="messageRate">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Filtered</div>
+                    <div class="stat-value" id="filteredCount">0</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="rateChart"></canvas>
             </div>
         </div>
 
         <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h2 style="font-size: 1.25rem; color: #2d3748;">Live Stream (latest first)</h2>
-                <button class="clear-btn" onclick="clearOutput()">Clear Output</button>
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('stream')">Live Stream</button>
+                <button class="tab" onclick="switchTab('code')">Code Snippets</button>
             </div>
-            <div id="output" class="output-container">
-                <div style="text-align: center; color: #718096; padding: 2rem;">
-                    Enter a WebSocket URL above and click Connect to start streaming data...
+
+            <div id="streamTab" class="tab-content active">
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <label for="textFilter">Text Filter (case-insensitive)</label>
+                        <input type="text" id="textFilter" placeholder="Filter by text content..." oninput="applyFilters()">
+                    </div>
+                    <div class="filter-group">
+                        <label for="jsonPathFilter">JSONPath Filter (e.g., $.price or $.data.event)</label>
+                        <input type="text" id="jsonPathFilter" placeholder="Extract JSON field..." oninput="applyFilters()">
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2 style="font-size: 1.25rem; color: #2d3748;">Live Stream (latest first)</h2>
+                    <div class="toolbar">
+                        <button onclick="togglePause()" id="pauseBtn" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">⏸ Pause</button>
+                        <button onclick="clearOutput()" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Clear</button>
+                        <button onclick="exportData()" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">📥 Export JSON</button>
+                    </div>
+                </div>
+                <div id="output" class="output-container">
+                    <div style="text-align: center; color: #718096; padding: 2rem;">
+                        Enter a stream URL above and click Connect to start streaming data...
+                    </div>
+                </div>
+            </div>
+
+            <div id="codeTab" class="tab-content">
+                <h3 style="margin-bottom: 1rem;">Code Snippets for Current Stream</h3>
+                <div class="tabs" style="border: none; margin-top: 1rem;">
+                    <button class="tab active" onclick="switchCodeTab('python')">Python</button>
+                    <button class="tab" onclick="switchCodeTab('javascript')">JavaScript</button>
+                    <button class="tab" onclick="switchCodeTab('curl')">cURL</button>
+                </div>
+                <div id="pythonCode" class="code-snippet">
+                    <button class="copy-btn" onclick="copyCode('pythonCode')">Copy</button>
+                    <pre id="pythonSnippet"></pre>
+                </div>
+                <div id="javascriptCode" class="code-snippet" style="display: none;">
+                    <button class="copy-btn" onclick="copyCode('javascriptCode')">Copy</button>
+                    <pre id="javascriptSnippet"></pre>
+                </div>
+                <div id="curlCode" class="code-snippet" style="display: none;">
+                    <button class="copy-btn" onclick="copyCode('curlCode')">Copy</button>
+                    <pre id="curlSnippet"></pre>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="toast" class="toast"></div>
+
     <script>
-        let ws = null;
+        let connection = null;
+        let connectionType = null;
         let messageCount = 0;
         let totalBytes = 0;
+        let filteredCount = 0;
         let connectionStartTime = null;
         let timerInterval = null;
+        let paused = false;
+        let allMessages = [];
+        let messageRates = [];
+        let rateChart = null;
+        let rateCtx = null;
 
-        function setUrl(url) {
-            document.getElementById('wsUrl').value = url;
-            // Disconnect existing connection if any
-            if (ws && ws.readyState === WebSocket.OPEN) {
+        // Initialize chart
+        const canvas = document.getElementById('rateChart');
+        rateCtx = canvas.getContext('2d');
+
+        // Load history
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('streamHistory') || '[]');
+            return history;
+        }
+
+        function saveToHistory(url, type) {
+            let history = loadHistory();
+            history = history.filter(h => h.url !== url);
+            history.unshift({ url, type, timestamp: Date.now() });
+            history = history.slice(0, 10); // Keep last 10
+            localStorage.setItem('streamHistory', JSON.stringify(history));
+        }
+
+        function renderHistory() {
+            const history = loadHistory();
+            const list = document.getElementById('historyList');
+            if (history.length === 0) {
+                list.innerHTML = '<div style="padding: 1rem; text-align: center; color: #718096;">No history yet</div>';
+                return;
+            }
+            list.innerHTML = history.map(h => `
+                <div class="history-item" onclick="setUrl('${h.url}', '${h.type}'); toggleHistory();">
+                    <div class="history-item-url">${h.url}</div>
+                    <div class="history-item-time">${new Date(h.timestamp).toLocaleString()}</div>
+                </div>
+            `).join('');
+        }
+
+        function toggleHistory() {
+            const list = document.getElementById('historyList');
+            list.classList.toggle('show');
+            renderHistory();
+        }
+
+        // Close history when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.history-dropdown')) {
+                document.getElementById('historyList').classList.remove('show');
+            }
+        });
+
+        function detectProtocol(url) {
+            if (url.startsWith('wss://') || url.startsWith('ws://')) {
+                return 'ws';
+            } else if (url.startsWith('https://') || url.startsWith('http://')) {
+                return 'sse';
+            }
+            return 'ws'; // default
+        }
+
+        function updateProtocolBadge(type) {
+            const badge = document.getElementById('protocolBadge');
+            badge.textContent = type === 'ws' ? 'WSS' : 'SSE';
+            badge.style.background = type === 'ws' ? '#f0f4ff' : '#fef3c7';
+            badge.style.borderColor = type === 'ws' ? '#667eea' : '#f59e0b';
+            badge.style.color = type === 'ws' ? '#667eea' : '#92400e';
+        }
+
+        document.getElementById('streamUrl').addEventListener('input', (e) => {
+            const type = detectProtocol(e.target.value);
+            updateProtocolBadge(type);
+            updateCodeSnippets(e.target.value, type);
+        });
+
+        function setUrl(url, type) {
+            document.getElementById('streamUrl').value = url;
+            document.getElementById('protocolSelect').value = type || 'auto';
+            updateProtocolBadge(type || detectProtocol(url));
+            updateCodeSnippets(url, type || detectProtocol(url));
+
+            if (connection) {
                 disconnect();
             }
-            // Auto-connect after a short delay
             setTimeout(() => connect(), 300);
         }
 
         function connect() {
-            const url = document.getElementById('wsUrl').value.trim();
+            const url = document.getElementById('streamUrl').value.trim();
             if (!url) {
-                alert('Please enter a WebSocket URL');
+                showToast('Please enter a stream URL');
                 return;
             }
 
-            if (ws && ws.readyState === WebSocket.OPEN) {
+            if (connection) {
                 disconnect();
             }
 
             messageCount = 0;
             totalBytes = 0;
+            filteredCount = 0;
+            allMessages = [];
+            messageRates = [];
             updateStats();
+
+            const protocolSelect = document.getElementById('protocolSelect').value;
+            connectionType = protocolSelect === 'auto' ? detectProtocol(url) : protocolSelect;
+            updateProtocolBadge(connectionType);
+            updateCodeSnippets(url, connectionType);
 
             const status = document.getElementById('status');
             status.className = 'status connecting';
-            status.textContent = `Connecting to ${url}...`;
+            status.textContent = `Connecting to ${url} (${connectionType.toUpperCase()})...`;
 
             document.getElementById('connectBtn').style.display = 'none';
             document.getElementById('disconnectBtn').style.display = 'inline-block';
 
             try {
-                ws = new WebSocket(url);
-
-                ws.onopen = () => {
-                    status.className = 'status connected';
-                    status.textContent = `✓ Connected to ${url}`;
-                    connectionStartTime = Date.now();
-                    startTimer();
-                    addMessage('info', 'Connection established');
-                };
-
-                ws.onmessage = (event) => {
-                    messageCount++;
-                    totalBytes += new Blob([event.data]).size;
-                    updateStats();
-
-                    let data = event.data;
-                    try {
-                        data = JSON.stringify(JSON.parse(data), null, 2);
-                    } catch (e) {
-                        // Not JSON, display as-is
-                    }
-                    addMessage('data', data);
-                };
-
-                ws.onerror = (error) => {
-                    status.className = 'status disconnected';
-                    status.textContent = '✗ Connection error';
-                    addMessage('error', 'WebSocket error occurred');
-                };
-
-                ws.onclose = () => {
-                    status.className = 'status disconnected';
-                    status.textContent = '✗ Connection closed';
-                    document.getElementById('connectBtn').style.display = 'inline-block';
-                    document.getElementById('disconnectBtn').style.display = 'none';
-                    stopTimer();
-                    addMessage('info', 'Connection closed');
-                };
+                if (connectionType === 'ws') {
+                    connectWebSocket(url);
+                } else {
+                    connectSSE(url);
+                }
+                saveToHistory(url, connectionType);
             } catch (error) {
                 status.className = 'status disconnected';
                 status.textContent = `✗ Failed to connect: ${error.message}`;
@@ -379,17 +746,118 @@
             }
         }
 
+        function connectWebSocket(url) {
+            connection = new WebSocket(url);
+
+            connection.onopen = () => {
+                const status = document.getElementById('status');
+                status.className = 'status connected';
+                status.textContent = `✓ Connected via WebSocket`;
+                connectionStartTime = Date.now();
+                startTimer();
+                addMessage('info', 'WebSocket connection established');
+            };
+
+            connection.onmessage = (event) => {
+                if (paused) return;
+
+                messageCount++;
+                totalBytes += new Blob([event.data]).size;
+                updateStats();
+
+                let data = event.data;
+                try {
+                    const parsed = JSON.parse(data);
+                    allMessages.push({ timestamp: Date.now(), data: parsed });
+                    data = JSON.stringify(parsed, null, 2);
+                } catch (e) {
+                    allMessages.push({ timestamp: Date.now(), data: data });
+                }
+                addMessage('data', data);
+                updateChart();
+            };
+
+            connection.onerror = () => {
+                const status = document.getElementById('status');
+                status.className = 'status disconnected';
+                status.textContent = '✗ WebSocket error';
+                addMessage('error', 'WebSocket error occurred');
+            };
+
+            connection.onclose = () => {
+                const status = document.getElementById('status');
+                status.className = 'status disconnected';
+                status.textContent = '✗ WebSocket closed';
+                document.getElementById('connectBtn').style.display = 'inline-block';
+                document.getElementById('disconnectBtn').style.display = 'none';
+                stopTimer();
+                addMessage('info', 'WebSocket connection closed');
+            };
+        }
+
+        function connectSSE(url) {
+            connection = new EventSource(url);
+            connectionType = 'sse';
+
+            connection.onopen = () => {
+                const status = document.getElementById('status');
+                status.className = 'status connected';
+                status.textContent = `✓ Connected via SSE`;
+                connectionStartTime = Date.now();
+                startTimer();
+                addMessage('info', 'SSE connection established');
+            };
+
+            connection.onmessage = (event) => {
+                if (paused) return;
+
+                messageCount++;
+                totalBytes += new Blob([event.data]).size;
+                updateStats();
+
+                let data = event.data;
+                try {
+                    const parsed = JSON.parse(data);
+                    allMessages.push({ timestamp: Date.now(), data: parsed });
+                    data = JSON.stringify(parsed, null, 2);
+                } catch (e) {
+                    allMessages.push({ timestamp: Date.now(), data: data });
+                }
+                addMessage('data', data);
+                updateChart();
+            };
+
+            connection.onerror = () => {
+                const status = document.getElementById('status');
+                status.className = 'status disconnected';
+                status.textContent = '✗ SSE error';
+                addMessage('error', 'SSE error occurred');
+                disconnect();
+            };
+        }
+
         function disconnect() {
-            if (ws) {
-                ws.close();
-                ws = null;
+            if (connection) {
+                if (connectionType === 'ws') {
+                    connection.close();
+                } else {
+                    connection.close();
+                }
+                connection = null;
             }
+        }
+
+        function togglePause() {
+            paused = !paused;
+            const btn = document.getElementById('pauseBtn');
+            btn.textContent = paused ? '▶ Resume' : '⏸ Pause';
+            showToast(paused ? 'Stream paused' : 'Stream resumed');
         }
 
         function addMessage(type, content) {
             const output = document.getElementById('output');
 
-            // Remove placeholder message if it exists
+            // Remove placeholder
             const placeholder = output.querySelector('[style*="text-align: center"]');
             if (placeholder) {
                 placeholder.remove();
@@ -397,6 +865,7 @@
 
             const message = document.createElement('div');
             message.className = 'message';
+            message.dataset.content = content.toLowerCase();
 
             const time = new Date().toLocaleTimeString();
             message.innerHTML = `
@@ -406,19 +875,186 @@
 
             output.insertBefore(message, output.firstChild);
 
-            // Keep only last 100 messages
-            while (output.children.length > 100) {
+            // Apply filters
+            applyFilters();
+
+            // Keep only last 200 messages
+            while (output.children.length > 200) {
                 output.removeChild(output.lastChild);
             }
         }
 
+        function applyFilters() {
+            const textFilter = document.getElementById('textFilter').value.toLowerCase();
+            const jsonPath = document.getElementById('jsonPathFilter').value.trim();
+            const messages = document.querySelectorAll('.message');
+            let filtered = 0;
+
+            messages.forEach(msg => {
+                const content = msg.dataset.content || '';
+                let show = true;
+
+                // Text filter
+                if (textFilter && !content.includes(textFilter)) {
+                    show = false;
+                }
+
+                // JSONPath filter
+                if (show && jsonPath) {
+                    try {
+                        const contentEl = msg.querySelector('.message-content');
+                        const text = contentEl.textContent;
+                        const json = JSON.parse(text);
+                        const value = extractJsonPath(json, jsonPath);
+                        if (value !== undefined) {
+                            contentEl.textContent = typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value);
+                        } else {
+                            show = false;
+                        }
+                    } catch (e) {
+                        // Not valid JSON or path not found
+                        if (jsonPath) show = false;
+                    }
+                }
+
+                if (show) {
+                    msg.classList.remove('filtered');
+                } else {
+                    msg.classList.add('filtered');
+                    filtered++;
+                }
+            });
+
+            filteredCount = filtered;
+            document.getElementById('filteredCount').textContent = filtered;
+        }
+
+        function extractJsonPath(obj, path) {
+            // Simple JSONPath implementation (supports $.field and $.field.subfield)
+            path = path.replace(/^\$\.?/, '');
+            if (!path) return obj;
+
+            const parts = path.split('.');
+            let current = obj;
+
+            for (const part of parts) {
+                if (current && typeof current === 'object' && part in current) {
+                    current = current[part];
+                } else {
+                    return undefined;
+                }
+            }
+
+            return current;
+        }
+
         function clearOutput() {
             document.getElementById('output').innerHTML = '<div style="text-align: center; color: #718096; padding: 2rem;">Output cleared. Waiting for new messages...</div>';
+            allMessages = [];
+        }
+
+        function exportData() {
+            const data = JSON.stringify(allMessages, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `stream-export-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Data exported successfully!');
+        }
+
+        function shareUrl() {
+            const url = document.getElementById('streamUrl').value.trim();
+            const type = connectionType || detectProtocol(url);
+            const param = type === 'ws' ? 'wss' : 'sse';
+            const shareUrl = `${window.location.origin}${window.location.pathname}?${param}=${encodeURIComponent(url)}`;
+
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                showToast('Share link copied to clipboard!');
+            }).catch(() => {
+                showToast('Failed to copy link');
+            });
         }
 
         function updateStats() {
             document.getElementById('messageCount').textContent = messageCount.toLocaleString();
             document.getElementById('dataSize').textContent = (totalBytes / 1024).toFixed(2) + ' KB';
+
+            // Calculate message rate
+            if (connectionStartTime) {
+                const elapsed = (Date.now() - connectionStartTime) / 1000;
+                const rate = elapsed > 0 ? (messageCount / elapsed).toFixed(2) : 0;
+                document.getElementById('messageRate').textContent = rate;
+            }
+        }
+
+        function updateChart() {
+            const now = Date.now();
+            messageRates.push({ time: now, count: messageCount });
+
+            // Keep last 60 data points
+            if (messageRates.length > 60) {
+                messageRates.shift();
+            }
+
+            drawChart();
+        }
+
+        function drawChart() {
+            if (!rateCtx || messageRates.length === 0) return;
+
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = canvas.offsetHeight;
+
+            rateCtx.clearRect(0, 0, width, height);
+
+            if (messageRates.length < 2) return;
+
+            // Calculate rates
+            const rates = [];
+            for (let i = 1; i < messageRates.length; i++) {
+                const timeDiff = (messageRates[i].time - messageRates[i-1].time) / 1000;
+                const countDiff = messageRates[i].count - messageRates[i-1].count;
+                rates.push(timeDiff > 0 ? countDiff / timeDiff : 0);
+            }
+
+            const maxRate = Math.max(...rates, 1);
+            const step = width / rates.length;
+
+            // Draw grid
+            rateCtx.strokeStyle = '#e2e8f0';
+            rateCtx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = (height / 4) * i;
+                rateCtx.beginPath();
+                rateCtx.moveTo(0, y);
+                rateCtx.lineTo(width, y);
+                rateCtx.stroke();
+            }
+
+            // Draw line
+            rateCtx.strokeStyle = '#667eea';
+            rateCtx.lineWidth = 2;
+            rateCtx.beginPath();
+
+            rates.forEach((rate, i) => {
+                const x = i * step;
+                const y = height - (rate / maxRate) * height;
+                if (i === 0) {
+                    rateCtx.moveTo(x, y);
+                } else {
+                    rateCtx.lineTo(x, y);
+                }
+            });
+
+            rateCtx.stroke();
+
+            // Draw label
+            rateCtx.fillStyle = '#4a5568';
+            rateCtx.font = '12px sans-serif';
+            rateCtx.fillText(`Max: ${maxRate.toFixed(1)} msg/s`, 10, 20);
         }
 
         function startTimer() {
@@ -440,8 +1076,151 @@
             }
         }
 
-        // Handle Enter key in input
-        document.getElementById('wsUrl').addEventListener('keypress', (e) => {
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+
+        function switchCodeTab(lang) {
+            document.querySelectorAll('.tabs')[1].querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('pythonCode').style.display = 'none';
+            document.getElementById('javascriptCode').style.display = 'none';
+            document.getElementById('curlCode').style.display = 'none';
+            document.getElementById(lang + 'Code').style.display = 'block';
+        }
+
+        function updateCodeSnippets(url, type) {
+            const escapedUrl = url.replace(/'/g, "\\'");
+
+            if (type === 'ws') {
+                // Python WebSocket
+                document.getElementById('pythonSnippet').textContent =
+`import websockets
+import asyncio
+import json
+
+async def connect():
+    async with websockets.connect('${escapedUrl}') as ws:
+        print("Connected to WebSocket")
+        async for message in ws:
+            try:
+                data = json.loads(message)
+                print(json.dumps(data, indent=2))
+            except json.JSONDecodeError:
+                print(message)
+
+asyncio.run(connect())`;
+
+                // JavaScript WebSocket
+                document.getElementById('javascriptSnippet').textContent =
+`const ws = new WebSocket('${escapedUrl}');
+
+ws.onopen = () => {
+    console.log('Connected to WebSocket');
+};
+
+ws.onmessage = (event) => {
+    try {
+        const data = JSON.parse(event.data);
+        console.log(JSON.stringify(data, null, 2));
+    } catch (e) {
+        console.log(event.data);
+    }
+};
+
+ws.onerror = (error) => {
+    console.error('WebSocket error:', error);
+};
+
+ws.onclose = () => {
+    console.log('WebSocket closed');
+};`;
+
+                // cURL (note: curl doesn't support WebSocket directly)
+                document.getElementById('curlSnippet').textContent =
+`# WebSocket connections require a WebSocket client
+# Try using websocat or wscat instead:
+
+websocat '${escapedUrl}'
+# or
+wscat -c '${escapedUrl}'`;
+
+            } else {
+                // Python SSE
+                document.getElementById('pythonSnippet').textContent =
+`import requests
+
+def connect():
+    response = requests.get(
+        '${escapedUrl}',
+        stream=True,
+        headers={'Accept': 'text/event-stream'}
+    )
+
+    for line in response.iter_lines():
+        if line:
+            decoded = line.decode('utf-8')
+            if decoded.startswith('data: '):
+                data = decoded[6:]
+                try:
+                    import json
+                    print(json.dumps(json.loads(data), indent=2))
+                except:
+                    print(data)
+
+connect()`;
+
+                // JavaScript SSE
+                document.getElementById('javascriptSnippet').textContent =
+`const eventSource = new EventSource('${escapedUrl}');
+
+eventSource.onopen = () => {
+    console.log('Connected to SSE stream');
+};
+
+eventSource.onmessage = (event) => {
+    try {
+        const data = JSON.parse(event.data);
+        console.log(JSON.stringify(data, null, 2));
+    } catch (e) {
+        console.log(event.data);
+    }
+};
+
+eventSource.onerror = (error) => {
+    console.error('SSE error:', error);
+    eventSource.close();
+};`;
+
+                // cURL SSE
+                document.getElementById('curlSnippet').textContent =
+`curl -N -H "Accept: text/event-stream" '${escapedUrl}'`;
+            }
+        }
+
+        function copyCode(elementId) {
+            const code = document.getElementById(elementId).querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast('Code copied to clipboard!');
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Handle Enter key
+        document.getElementById('streamUrl').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 connect();
             }
@@ -451,12 +1230,21 @@
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
             const wssUrl = params.get('wss') || params.get('ws');
+            const sseUrl = params.get('sse');
+
             if (wssUrl) {
-                document.getElementById('wsUrl').value = wssUrl;
-                // Auto-connect after a short delay
-                setTimeout(() => connect(), 500);
+                setUrl(wssUrl, 'ws');
+            } else if (sseUrl) {
+                setUrl(sseUrl, 'sse');
+            } else {
+                // Initialize with default URL
+                const defaultUrl = document.getElementById('streamUrl').value;
+                updateCodeSnippets(defaultUrl, 'ws');
             }
         });
+
+        // Initial code snippet update
+        updateCodeSnippets(document.getElementById('streamUrl').value, 'ws');
     </script>
 </body>
 </html>
