@@ -627,7 +627,7 @@
                         <li>Kafka Connect must be running (default: <code style="background: #fff; padding: 0.1rem 0.3rem; border-radius: 3px;">localhost:8083</code>)</li>
                         <li><strong>HTTP polling sources:</strong> Install <a href="https://github.com/castorm/kafka-connect-http" target="_blank" style="color: #d97706;">kafka-connect-http</a> plugin</li>
                         <li><strong>SSE sources:</strong> Install <a href="https://github.com/cjmatta/kafka-connect-sse" target="_blank" style="color: #d97706;">kafka-connect-sse</a> plugin</li>
-                        <li><strong>WebSocket sources:</strong> Install a <a href="https://github.com/Seko47/kafka-connect-websocket" target="_blank" style="color: #d97706;">WebSocket connector</a> (see config notes)</li>
+                        <li><strong>WebSocket sources:</strong> Install a <a href="https://github.com/evolv34/kafka-connect-ws" target="_blank" style="color: #d97706;">WebSocket connector</a> (see config notes)</li>
                         <li>Place plugin JARs in <code style="background: #fff; padding: 0.1rem 0.3rem; border-radius: 3px;">$KAFKA_HOME/plugins/</code> and restart Kafka Connect</li>
                     </ul>
                 </div>
@@ -653,7 +653,7 @@
                         💡 <strong>Connector repositories:</strong><br>
                         • HTTP: <a href="https://github.com/castorm/kafka-connect-http" target="_blank" style="color: #667eea;">kafka-connect-http</a><br>
                         • SSE: <a href="https://github.com/cjmatta/kafka-connect-sse" target="_blank" style="color: #667eea;">kafka-connect-sse</a><br>
-                        • WebSocket: <a href="https://github.com/Seko47/kafka-connect-websocket" target="_blank" style="color: #667eea;">kafka-connect-websocket</a>
+                        • WebSocket: <a href="https://github.com/evolv34/kafka-connect-ws" target="_blank" style="color: #667eea;">kafka-connect-ws</a>
                     </p>
                 </div>
             </div>
@@ -1353,12 +1353,12 @@
                         "connector.class": "com.github.jcustenborder.kafka.connect.simulator.SimulatorSourceConnector",
                         "_IMPORTANT": "⚠️ WebSocket streaming requires a specialized connector. The kafka-connect-http plugin does NOT support WebSocket protocol (it only does HTTP polling).",
                         "_RECOMMENDED_CONNECTORS": [
-                            "Option 1: kafka-connect-ws - https://github.com/Seko47/kafka-connect-websocket",
+                            "Option 1: kafka-connect-ws - https://github.com/evolv34/kafka-connect-ws",
                             "Option 2: Build a custom WebSocket source connector",
                             "Option 3: Use a WebSocket proxy service that converts to HTTP endpoints"
                         ],
                         "_EXAMPLE_CONFIG_WITH_KAFKA_CONNECT_WS": {
-                            "connector.class": "com.github.seko47.kafka.connect.websocket.WebSocketSourceConnector",
+                            "connector.class": "com.github.evolv34.kafka.connect.ws.WebSocketSourceConnector",
                             "tasks.max": "1",
                             "websocket.url": url,
                             "kafka.topic": topicName,
