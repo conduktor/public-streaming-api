@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Stream Viewer - Public Real-Time Data Sources</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 0.75rem 2rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.disconnect {
+            background: #ef4444;
+        }
+
+        button.disconnect:hover {
+            background: #dc2626;
+        }
+
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status.connected {
+            background: #d1fae5;
+            color: #065f46;
+            display: block;
+        }
+
+        .status.disconnected {
+            background: #fee2e2;
+            color: #991b1b;
+            display: block;
+        }
+
+        .status.connecting {
+            background: #fef3c7;
+            color: #92400e;
+            display: block;
+        }
+
+        .examples {
+            margin-top: 1.5rem;
+        }
+
+        .examples h3 {
+            font-size: 1rem;
+            color: #4a5568;
+            margin-bottom: 0.75rem;
+        }
+
+        .example-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .example-link {
+            padding: 0.5rem 1rem;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .example-link:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .output-container {
+            background: #1a202c;
+            border-radius: 8px;
+            padding: 1.5rem;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: #a0aec0;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #2d3748;
+        }
+
+        .message:last-child {
+            border-bottom: none;
+        }
+
+        .message-time {
+            color: #718096;
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .message-content {
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .clear-btn {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: #4a5568;
+            font-size: 0.875rem;
+        }
+
+        .clear-btn:hover {
+            background: #2d3748;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .stat-value {
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌐 WebSocket Stream Viewer</h1>
+            <p class="subtitle">Connect to any WebSocket endpoint and view real-time data streams</p>
+        </header>
+
+        <div class="card">
+            <div class="input-group">
+                <input
+                    type="text"
+                    id="wsUrl"
+                    placeholder="Enter WebSocket URL (e.g., wss://stream.binance.com:9443/ws/btcusdt@trade)"
+                    value="wss://stream.binance.com:9443/ws/btcusdt@trade"
+                >
+                <button id="connectBtn" onclick="connect()">Connect</button>
+                <button id="disconnectBtn" onclick="disconnect()" style="display: none;" class="disconnect">Disconnect</button>
+            </div>
+
+            <div id="status" class="status"></div>
+
+            <div class="examples">
+                <h3>Quick Examples:</h3>
+                <div class="example-links">
+                    <div class="example-link" onclick="setUrl('wss://stream.binance.com:9443/ws/btcusdt@trade')">
+                        Binance BTC Trades
+                    </div>
+                    <div class="example-link" onclick="setUrl('wss://ws.blockchain.info/inv')">
+                        Bitcoin Transactions
+                    </div>
+                    <div class="example-link" onclick="setUrl('wss://ws.kraken.com')">
+                        Kraken Market Data
+                    </div>
+                    <div class="example-link" onclick="setUrl('wss://www.seismicportal.eu/standing_order/websocket')">
+                        Earthquake Events
+                    </div>
+                    <div class="example-link" onclick="setUrl('wss://certstream.calidog.io')">
+                        SSL Certificates
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div>
+                    <div>Messages Received</div>
+                    <div class="stat-value" id="messageCount">0</div>
+                </div>
+                <div>
+                    <div>Data Received</div>
+                    <div class="stat-value" id="dataSize">0 KB</div>
+                </div>
+                <div>
+                    <div>Connection Time</div>
+                    <div class="stat-value" id="connectionTime">--:--</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="font-size: 1.25rem; color: #2d3748;">Live Stream</h2>
+                <button class="clear-btn" onclick="clearOutput()">Clear Output</button>
+            </div>
+            <div id="output" class="output-container">
+                <div style="text-align: center; color: #718096; padding: 2rem;">
+                    Enter a WebSocket URL above and click Connect to start streaming data...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let messageCount = 0;
+        let totalBytes = 0;
+        let connectionStartTime = null;
+        let timerInterval = null;
+
+        function setUrl(url) {
+            document.getElementById('wsUrl').value = url;
+        }
+
+        function connect() {
+            const url = document.getElementById('wsUrl').value.trim();
+            if (!url) {
+                alert('Please enter a WebSocket URL');
+                return;
+            }
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                disconnect();
+            }
+
+            messageCount = 0;
+            totalBytes = 0;
+            updateStats();
+
+            const status = document.getElementById('status');
+            status.className = 'status connecting';
+            status.textContent = `Connecting to ${url}...`;
+
+            document.getElementById('connectBtn').style.display = 'none';
+            document.getElementById('disconnectBtn').style.display = 'inline-block';
+
+            try {
+                ws = new WebSocket(url);
+
+                ws.onopen = () => {
+                    status.className = 'status connected';
+                    status.textContent = `✓ Connected to ${url}`;
+                    connectionStartTime = Date.now();
+                    startTimer();
+                    addMessage('info', 'Connection established');
+                };
+
+                ws.onmessage = (event) => {
+                    messageCount++;
+                    totalBytes += new Blob([event.data]).size;
+                    updateStats();
+
+                    let data = event.data;
+                    try {
+                        data = JSON.stringify(JSON.parse(data), null, 2);
+                    } catch (e) {
+                        // Not JSON, display as-is
+                    }
+                    addMessage('data', data);
+                };
+
+                ws.onerror = (error) => {
+                    status.className = 'status disconnected';
+                    status.textContent = '✗ Connection error';
+                    addMessage('error', 'WebSocket error occurred');
+                };
+
+                ws.onclose = () => {
+                    status.className = 'status disconnected';
+                    status.textContent = '✗ Connection closed';
+                    document.getElementById('connectBtn').style.display = 'inline-block';
+                    document.getElementById('disconnectBtn').style.display = 'none';
+                    stopTimer();
+                    addMessage('info', 'Connection closed');
+                };
+            } catch (error) {
+                status.className = 'status disconnected';
+                status.textContent = `✗ Failed to connect: ${error.message}`;
+                document.getElementById('connectBtn').style.display = 'inline-block';
+                document.getElementById('disconnectBtn').style.display = 'none';
+            }
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        function addMessage(type, content) {
+            const output = document.getElementById('output');
+            const message = document.createElement('div');
+            message.className = 'message';
+
+            const time = new Date().toLocaleTimeString();
+            message.innerHTML = `
+                <div class="message-time">${time}</div>
+                <div class="message-content">${content}</div>
+            `;
+
+            if (output.firstChild && output.firstChild.style) {
+                output.firstChild.remove();
+            }
+
+            output.insertBefore(message, output.firstChild);
+
+            // Keep only last 100 messages
+            while (output.children.length > 100) {
+                output.removeChild(output.lastChild);
+            }
+        }
+
+        function clearOutput() {
+            document.getElementById('output').innerHTML = '<div style="text-align: center; color: #718096; padding: 2rem;">Output cleared. Waiting for new messages...</div>';
+        }
+
+        function updateStats() {
+            document.getElementById('messageCount').textContent = messageCount.toLocaleString();
+            document.getElementById('dataSize').textContent = (totalBytes / 1024).toFixed(2) + ' KB';
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (connectionStartTime) {
+                    const elapsed = Math.floor((Date.now() - connectionStartTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60);
+                    const seconds = elapsed % 60;
+                    document.getElementById('connectionTime').textContent =
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // Handle Enter key in input
+        document.getElementById('wsUrl').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                connect();
+            }
+        });
+
+        // Auto-connect from URL parameter
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const wssUrl = params.get('wss') || params.get('ws');
+            if (wssUrl) {
+                document.getElementById('wsUrl').value = wssUrl;
+                // Auto-connect after a short delay
+                setTimeout(() => connect(), 500);
+            }
+        });
+    </script>
+</body>
+</html>

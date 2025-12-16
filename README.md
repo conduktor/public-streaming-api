@@ -6,6 +6,10 @@ A curated list of **truly free**, publicly accessible real-time datasets and str
 
 This list focuses on real-time or near real-time data accessible via HTTP APIs, WebSockets, SSE (Server-Sent Events), or other streaming protocols.
 
+## 🎮 [Try the Live WebSocket Viewer](https://conduktor.github.io/public-streaming-api/)
+
+Test any WebSocket endpoint instantly in your browser! Click on WebSocket links below to connect automatically.
+
 ## Table of Contents
 
 - [Finance & Cryptocurrency](#finance--cryptocurrency)
@@ -29,22 +33,22 @@ This list focuses on real-time or near real-time data accessible via HTTP APIs, 
 
 ### Cryptocurrency Exchanges (WebSocket)
 
-- **[Coinbase Pro WebSocket](https://docs.cloud.coinbase.com/exchange/docs/websocket-overview)** - Real-time market data including order books, trades, and ticker updates. No authentication required for public channels.
+- **[Coinbase Pro WebSocket](https://docs.cloud.coinbase.com/exchange/docs/websocket-overview)** - Real-time market data including order books, trades, and ticker updates. No authentication required for public channels. [🔴 Try it live](https://conduktor.github.io/public-streaming-api/?wss=wss://ws-feed.exchange.coinbase.com)
   ```
   wss://ws-feed.exchange.coinbase.com
   ```
 
-- **[Binance WebSocket Streams](https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams)** - Real-time cryptocurrency trading data, order books, and market updates for 1000+ trading pairs.
+- **[Binance WebSocket Streams](https://developers.binance.com/docs/binance-spot-api-docs/web-socket-streams)** - Real-time cryptocurrency trading data, order books, and market updates for 1000+ trading pairs. [🔴 Try it live](https://conduktor.github.io/public-streaming-api/?wss=wss://stream.binance.com:9443/ws/btcusdt@trade)
   ```
-  wss://stream.binance.com:9443/ws
+  wss://stream.binance.com:9443/ws/btcusdt@trade
   ```
 
-- **[Blockchain.com WebSocket](https://www.blockchain.com/api/api_websocket)** - Real-time Bitcoin and Ethereum blockchain transaction notifications.
+- **[Blockchain.com WebSocket](https://www.blockchain.com/api/api_websocket)** - Real-time Bitcoin and Ethereum blockchain transaction notifications. [🔴 Try it live](https://conduktor.github.io/public-streaming-api/?wss=wss://ws.blockchain.info/inv)
   ```
   wss://ws.blockchain.info/inv
   ```
 
-- **[Kraken WebSocket](https://docs.kraken.com/websockets/)** - Real-time cryptocurrency market data. Public feeds available without authentication.
+- **[Kraken WebSocket](https://docs.kraken.com/websockets/)** - Real-time cryptocurrency market data. Public feeds available without authentication. [🔴 Try it live](https://conduktor.github.io/public-streaming-api/?wss=wss://ws.kraken.com)
   ```
   wss://ws.kraken.com
   ```
@@ -167,7 +171,7 @@ This list focuses on real-time or near real-time data accessible via HTTP APIs, 
   https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson
   ```
 
-- **[European-Mediterranean Seismological Centre (EMSC) WebSocket](https://www.seismicportal.eu/realtime.html)** - Real-time seismic events via WebSocket.
+- **[European-Mediterranean Seismological Centre (EMSC) WebSocket](https://www.seismicportal.eu/realtime.html)** - Real-time seismic events via WebSocket. [🔴 Try it live](https://conduktor.github.io/public-streaming-api/?wss=wss://www.seismicportal.eu/standing_order/websocket)
   ```
   wss://www.seismicportal.eu/standing_order/websocket
   ```
@@ -313,9 +317,9 @@ This list focuses on real-time or near real-time data accessible via HTTP APIs, 
 
 - **[Bluesky Firehose](https://docs.bsky.app/docs/advanced-guides/firehose)** - WebSocket stream of all public posts on the Bluesky social network. Requires authentication.
 
-- **[Mastodon Streaming API](https://docs.joinmastodon.org/methods/streaming/)** - Real-time posts from Mastodon instances. Public timeline accessible without auth on many instances.
+- **[Mastodon Streaming API](https://docs.joinmastodon.org/methods/streaming/)** - Real-time posts from Mastodon instances. Public timeline accessible without auth on many instances. [🔴 Try it live](https://conduktor.github.io/public-streaming-api/?wss=wss://mastodon.social/api/v1/streaming/public)
   ```
-  wss://{instance}/api/v1/streaming/public
+  wss://mastodon.social/api/v1/streaming/public
   ```
 
 - **[Reddit JSON Feeds](https://www.reddit.com/)** - Real-time posts from any subreddit. Add `.json` to any Reddit URL. Note: May require User-Agent header or may block automated access.
@@ -333,7 +337,7 @@ This list focuses on real-time or near real-time data accessible via HTTP APIs, 
 
 ## Cybersecurity
 
-- **[Certstream](https://certstream.calidog.io/)** - Real-time certificate transparency log stream via WebSocket.
+- **[Certstream](https://certstream.calidog.io/)** - Real-time certificate transparency log stream via WebSocket. [🔴 Try it live](https://conduktor.github.io/public-streaming-api/?wss=wss://certstream.calidog.io)
   ```
   wss://certstream.calidog.io
   ```
@@ -346,7 +350,7 @@ This list focuses on real-time or near real-time data accessible via HTTP APIs, 
 
 ### WebSocket Testing
 
-- **[WebSocket Echo Server](https://websocket.org/tools/websocket-echo-server/)** - Public echo server for WebSocket testing.
+- **[WebSocket Echo Server](https://websocket.org/tools/websocket-echo-server/)** - Public echo server for WebSocket testing. [🔴 Try it live](https://conduktor.github.io/public-streaming-api/?wss=wss://echo.websocket.org/)
   ```
   wss://echo.websocket.org/
   wss://echo.websocket.events/
