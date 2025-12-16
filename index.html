@@ -1353,7 +1353,7 @@ websocat '${escapedUrl}'
 # or
 wscat -c '${escapedUrl}'`;
 
-            } else {
+            } else if (type === 'sse') {
                 // Python SSE
                 document.getElementById('pythonSnippet').textContent =
 `import requests
