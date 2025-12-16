@@ -140,30 +140,32 @@
             transform: none;
         }
 
-        .status {
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            font-weight: 500;
-            display: none;
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 0.5rem;
+            transition: all 0.3s;
         }
 
-        .status.connected {
-            background: #d1fae5;
-            color: #065f46;
-            display: block;
+        .status-indicator.connected {
+            background: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
         }
 
-        .status.disconnected {
-            background: #fee2e2;
-            color: #991b1b;
-            display: block;
+        .status-indicator.disconnected {
+            background: #ef4444;
         }
 
-        .status.connecting {
-            background: #fef3c7;
-            color: #92400e;
-            display: block;
+        .status-indicator.connecting {
+            background: #f59e0b;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .examples {
@@ -454,16 +456,14 @@
                     >
                     <span class="protocol-badge" id="protocolBadge">WSS</span>
                 </div>
-                <button id="connectBtn" onclick="connect()">Connect</button>
-                <button id="disconnectBtn" onclick="disconnect()" style="display: none;" class="disconnect">Disconnect</button>
+                <button id="connectBtn" onclick="connect()">Connect<span class="status-indicator" id="statusIndicator"></span></button>
+                <button id="disconnectBtn" onclick="disconnect()" style="display: none;" class="disconnect">Disconnect<span class="status-indicator connected" id="statusIndicator2"></span></button>
                 <div class="history-dropdown">
                     <button onclick="toggleHistory()" class="secondary">History ▼</button>
                     <div id="historyList" class="history-list"></div>
                 </div>
                 <button onclick="shareUrl()" class="secondary">Share 🔗</button>
             </div>
-
-            <div id="status" class="status"></div>
 
             <div class="examples">
                 <h3>Quick Examples:</h3>
@@ -689,10 +689,7 @@
             updateProtocolBadge(connectionType);
             updateCodeSnippets(url, connectionType);
 
-            const status = document.getElementById('status');
-            status.className = 'status connecting';
-            status.textContent = `Connecting to ${url} (${connectionType.toUpperCase()})...`;
-
+            document.getElementById('statusIndicator').className = 'status-indicator connecting';
             document.getElementById('connectBtn').style.display = 'none';
             document.getElementById('disconnectBtn').style.display = 'inline-block';
 
@@ -704,8 +701,8 @@
                 }
                 saveToHistory(url, connectionType);
             } catch (error) {
-                status.className = 'status disconnected';
-                status.textContent = `✗ Failed to connect: ${error.message}`;
+                document.getElementById('statusIndicator').className = 'status-indicator disconnected';
+                showToast(`Failed to connect: ${error.message}`);
                 document.getElementById('connectBtn').style.display = 'inline-block';
                 document.getElementById('disconnectBtn').style.display = 'none';
             }
@@ -715,9 +712,7 @@
             connection = new WebSocket(url);
 
             connection.onopen = () => {
-                const status = document.getElementById('status');
-                status.className = 'status connected';
-                status.textContent = `✓ Connected via WebSocket`;
+                document.getElementById('statusIndicator2').className = 'status-indicator connected';
                 connectionStartTime = Date.now();
                 startTimer();
                 addMessage('info', 'WebSocket connection established');
@@ -743,16 +738,12 @@
             };
 
             connection.onerror = () => {
-                const status = document.getElementById('status');
-                status.className = 'status disconnected';
-                status.textContent = '✗ WebSocket error';
+                document.getElementById('statusIndicator2').className = 'status-indicator disconnected';
                 addMessage('error', 'WebSocket error occurred');
             };
 
             connection.onclose = () => {
-                const status = document.getElementById('status');
-                status.className = 'status disconnected';
-                status.textContent = '✗ WebSocket closed';
+                document.getElementById('statusIndicator').className = 'status-indicator disconnected';
                 document.getElementById('connectBtn').style.display = 'inline-block';
                 document.getElementById('disconnectBtn').style.display = 'none';
                 stopTimer();
@@ -765,9 +756,7 @@
             connectionType = 'sse';
 
             connection.onopen = () => {
-                const status = document.getElementById('status');
-                status.className = 'status connected';
-                status.textContent = `✓ Connected via SSE`;
+                document.getElementById('statusIndicator2').className = 'status-indicator connected';
                 connectionStartTime = Date.now();
                 startTimer();
                 addMessage('info', 'SSE connection established');
@@ -793,9 +782,7 @@
             };
 
             connection.onerror = () => {
-                const status = document.getElementById('status');
-                status.className = 'status disconnected';
-                status.textContent = '✗ SSE error';
+                document.getElementById('statusIndicator2').className = 'status-indicator disconnected';
                 addMessage('error', 'SSE error occurred');
                 disconnect();
             };
