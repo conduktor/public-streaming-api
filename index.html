@@ -603,6 +603,7 @@
                             </select>
                         </div>
                         <button onclick="togglePause()" id="pauseBtn" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem; display: none;">⏸ Pause</button>
+                        <button onclick="toggleDiffMode()" id="diffModeBtn" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">📊 Diff Only</button>
                         <button onclick="clearOutput()" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Clear</button>
                         <button onclick="exportData()" class="secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">📥 Export</button>
                     </div>
@@ -702,6 +703,10 @@
         let autoRefreshEnabled = false;
         let currentHttpUrl = null;
         let httpAbortController = null;
+
+        // Diff mode variables
+        let diffModeEnabled = false;
+        let previousMessage = null;
 
         // Initialize chart
         const canvas = document.getElementById('rateChart');
@@ -1111,6 +1116,110 @@
             showToast(paused ? 'Stream paused' : 'Stream resumed');
         }
 
+        function toggleDiffMode() {
+            diffModeEnabled = !diffModeEnabled;
+            const btn = document.getElementById('diffModeBtn');
+
+            if (diffModeEnabled) {
+                btn.textContent = '📄 Full';
+                btn.style.background = '#667eea';
+                btn.style.color = 'white';
+                previousMessage = null; // Reset on enable
+                showToast('Diff mode enabled - showing only changes');
+            } else {
+                btn.textContent = '📊 Diff Only';
+                btn.style.background = '';
+                btn.style.color = '';
+                showToast('Showing full messages');
+            }
+        }
+
+        function createJsonDiff(oldObj, newObj, path = '') {
+            const lines = [];
+
+            // Handle null/undefined cases
+            if (oldObj === null || oldObj === undefined) {
+                if (newObj !== null && newObj !== undefined) {
+                    lines.push(`+ ${path || '(root)'}: ${JSON.stringify(newObj)}`);
+                }
+                return lines;
+            }
+            if (newObj === null || newObj === undefined) {
+                lines.push(`- ${path || '(root)'}: ${JSON.stringify(oldObj)}`);
+                return lines;
+            }
+
+            // If types are different, show both
+            if (typeof oldObj !== typeof newObj) {
+                lines.push(`- ${path}: ${JSON.stringify(oldObj)}`);
+                lines.push(`+ ${path}: ${JSON.stringify(newObj)}`);
+                return lines;
+            }
+
+            // For primitives, compare directly
+            if (typeof newObj !== 'object') {
+                if (oldObj !== newObj) {
+                    lines.push(`- ${path}: ${JSON.stringify(oldObj)}`);
+                    lines.push(`+ ${path}: ${JSON.stringify(newObj)}`);
+                }
+                return lines;
+            }
+
+            // For arrays
+            if (Array.isArray(newObj)) {
+                if (!Array.isArray(oldObj)) {
+                    lines.push(`- ${path}: ${JSON.stringify(oldObj)}`);
+                    lines.push(`+ ${path}: ${JSON.stringify(newObj)}`);
+                    return lines;
+                }
+
+                const maxLen = Math.max(oldObj.length, newObj.length);
+                for (let i = 0; i < maxLen; i++) {
+                    const itemPath = `${path}[${i}]`;
+                    if (i >= oldObj.length) {
+                        lines.push(`+ ${itemPath}: ${JSON.stringify(newObj[i])}`);
+                    } else if (i >= newObj.length) {
+                        lines.push(`- ${itemPath}: ${JSON.stringify(oldObj[i])}`);
+                    } else {
+                        lines.push(...createJsonDiff(oldObj[i], newObj[i], itemPath));
+                    }
+                }
+                return lines;
+            }
+
+            // For objects
+            const allKeys = new Set([...Object.keys(oldObj), ...Object.keys(newObj)]);
+            for (const key of allKeys) {
+                const newPath = path ? `${path}.${key}` : key;
+
+                if (!(key in oldObj)) {
+                    lines.push(`+ ${newPath}: ${JSON.stringify(newObj[key])}`);
+                } else if (!(key in newObj)) {
+                    lines.push(`- ${newPath}: ${JSON.stringify(oldObj[key])}`);
+                } else {
+                    lines.push(...createJsonDiff(oldObj[key], newObj[key], newPath));
+                }
+            }
+
+            return lines;
+        }
+
+        function formatDiff(diffLines) {
+            if (diffLines.length === 0) {
+                return '<span style="color: #718096; font-style: italic;">No changes detected</span>';
+            }
+
+            return diffLines.map(line => {
+                if (line.startsWith('+ ')) {
+                    return `<span style="color: #48bb78; background: #f0fff4; display: block; padding: 2px 4px; font-family: 'Courier New', monospace;">${line}</span>`;
+                } else if (line.startsWith('- ')) {
+                    return `<span style="color: #f56565; background: #fff5f5; display: block; padding: 2px 4px; font-family: 'Courier New', monospace;">${line}</span>`;
+                } else {
+                    return `<span style="color: #718096; display: block; padding: 2px 4px; font-family: 'Courier New', monospace;">${line}</span>`;
+                }
+            }).join('');
+        }
+
         function addMessage(type, content) {
             const output = document.getElementById('output');
 
@@ -1120,6 +1229,29 @@
                 placeholder.remove();
             }
 
+            let displayContent = content;
+
+            // Handle diff mode for data messages
+            if (diffModeEnabled && type === 'data') {
+                try {
+                    const currentObj = JSON.parse(content);
+
+                    if (previousMessage === null) {
+                        // First message in diff mode - show it fully
+                        displayContent = '<span style="color: #718096; font-style: italic;">First message (baseline)</span>\n' + content;
+                    } else {
+                        // Compare with previous message
+                        const diffLines = createJsonDiff(previousMessage, currentObj);
+                        displayContent = formatDiff(diffLines);
+                    }
+
+                    previousMessage = currentObj;
+                } catch (e) {
+                    // If not JSON, just show normally
+                    displayContent = content;
+                }
+            }
+
             const message = document.createElement('div');
             message.className = 'message';
             message.dataset.content = content.toLowerCase();
@@ -1127,7 +1259,7 @@
             const time = new Date().toLocaleTimeString();
             message.innerHTML = `
                 <div class="message-time">${time}</div>
-                <div class="message-content">${content}</div>
+                <div class="message-content">${displayContent}</div>
             `;
 
             output.insertBefore(message, output.firstChild);
@@ -1221,6 +1353,7 @@
         function clearOutput() {
             document.getElementById('output').innerHTML = '<div style="text-align: center; color: #718096; padding: 2rem;">Output cleared. Waiting for new messages...</div>';
             allMessages = [];
+            previousMessage = null; // Reset diff baseline
         }
 
         function exportData() {
