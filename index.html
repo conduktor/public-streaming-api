@@ -815,6 +815,13 @@
                 return;
             }
 
+            // Check for mixed content (HTTP URL on HTTPS page)
+            if (window.location.protocol === 'https:' &&
+                (url.startsWith('http://') || url.startsWith('ws://'))) {
+                showToast('⚠️ Cannot connect to HTTP/WS from HTTPS page (mixed content blocked). Use HTTPS/WSS or run locally.', 5000);
+                return;
+            }
+
             if (connection) {
                 disconnect();
             }
@@ -1781,13 +1788,13 @@ done`;
             });
         }
 
-        function showToast(message) {
+        function showToast(message, duration = 3000) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.classList.add('show');
             setTimeout(() => {
                 toast.classList.remove('show');
-            }, 3000);
+            }, duration);
         }
 
         // Scroll to top functionality
