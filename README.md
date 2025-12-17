@@ -9,7 +9,7 @@ This list focuses on real-time or near real-time data accessible via HTTP APIs, 
 
 ## 🎮 [Try the Live Stream Viewer](https://conduktor.github.io/public-streaming-api/)
 
-Test any WebSocket, SSE, or HTTP endpoint instantly in your browser! Click on the 🔴 (WebSocket), 🟡 (SSE), or 🔵 (HTTP) links below to connect automatically.
+Test any WebSocket, SSE, or HTTP endpoint instantly in your browser!
 
 ## Table of Contents
 
