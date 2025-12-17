@@ -637,14 +637,11 @@
                 <h3 style="margin-bottom: 1rem;">Kafka Connect Configuration</h3>
                 <p style="color: #718096; margin-bottom: 1rem;">Pre-configured connector JSON for streaming this data source into Kafka. Adjust the configuration as needed for your Kafka Connect deployment.</p>
 
-                <div style="margin-bottom: 1.5rem; padding: 1rem; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+                <div id="kafkaPrerequisites" style="margin-bottom: 1.5rem; padding: 1rem; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
                     <h4 style="margin: 0 0 0.5rem 0; color: #856404; font-size: 0.95rem;">⚠️ Prerequisites</h4>
-                    <p style="margin: 0 0 0.5rem 0; color: #856404; font-size: 0.875rem;">Install the appropriate Kafka Connect plugin based on the stream protocol:</p>
-                    <ul style="margin: 0; padding-left: 1.5rem; color: #856404; font-size: 0.875rem; line-height: 1.6;">
-                        <li><strong>HTTP polling (http:// or https://):</strong> <a href="https://github.com/castorm/kafka-connect-http" target="_blank" style="color: #d97706;">kafka-connect-http</a> plugin</li>
-                        <li><strong>Server-Sent Events (SSE):</strong> <a href="https://github.com/cjmatta/kafka-connect-sse" target="_blank" style="color: #d97706;">kafka-connect-sse</a> plugin</li>
-                        <li><strong>WebSocket (ws:// or wss://):</strong> <a href="https://github.com/conduktor/kafka-connect-websocket" target="_blank" style="color: #d97706;">kafka-connect-websocket</a> plugin (Conduktor)</li>
-                    </ul>
+                    <p style="margin: 0; color: #856404; font-size: 0.875rem;" id="kafkaPrerequisitesContent">
+                        Install the appropriate Kafka Connect plugin based on the stream protocol.
+                    </p>
                 </div>
 
                 <div class="code-snippet">
@@ -1557,36 +1554,38 @@
             const connectorName = url.split('/').pop().replace(/[^a-zA-Z0-9-]/g, '-') || 'stream-source';
             const topicName = `stream.${connectorName}`;
 
+            // Update prerequisites based on type
+            const prerequisitesContent = document.getElementById('kafkaPrerequisitesContent');
+            if (type === 'ws' || type === 'wss') {
+                prerequisitesContent.innerHTML = `
+                    <strong>WebSocket connector required:</strong><br>
+                    Install <a href="https://github.com/conduktor/kafka-connect-websocket" target="_blank" style="color: #d97706; text-decoration: underline;">kafka-connect-websocket</a> plugin (Conduktor)
+                `;
+            } else if (type === 'sse') {
+                prerequisitesContent.innerHTML = `
+                    <strong>Server-Sent Events connector required:</strong><br>
+                    Install <a href="https://github.com/cjmatta/kafka-connect-sse" target="_blank" style="color: #d97706; text-decoration: underline;">kafka-connect-sse</a> plugin
+                `;
+            } else {
+                prerequisitesContent.innerHTML = `
+                    <strong>HTTP polling connector required:</strong><br>
+                    Install <a href="https://github.com/castorm/kafka-connect-http" target="_blank" style="color: #d97706; text-decoration: underline;">kafka-connect-http</a> plugin
+                `;
+            }
+
             let config = {};
 
             if (type === 'ws' || type === 'wss') {
-                // WebSocket requires a custom solution - NO actively maintained Kafka Connect WebSocket connectors exist
                 config = {
                     "name": `websocket-source-${connectorName}`,
                     "config": {
-                        "_CRITICAL": "⚠️ There is NO actively maintained Kafka Connect WebSocket source connector available.",
-                        "_REALITY_CHECK": "All existing WebSocket connectors are 7-8 years old and abandoned. The kafka-connect-http plugin does NOT support WebSocket protocol (it only does HTTP polling).",
-                        "_RECOMMENDED_SOLUTIONS": {
-                            "option_1_custom_microservice": {
-                                "description": "Build a lightweight microservice that consumes WebSocket and produces to Kafka",
-                                "technologies": ["Node.js + kafkajs", "Python + confluent-kafka-python", "Go + sarama"],
-                                "pros": "Full control, easy to maintain, production-ready",
-                                "websocket_url": url,
-                                "kafka_topic": topicName
-                            },
-                            "option_2_kafka_streams_app": {
-                                "description": "Create a Kafka Streams application that connects to WebSocket",
-                                "pros": "Native Kafka integration, exactly-once semantics",
-                                "cons": "More complex than simple producer"
-                            },
-                            "option_3_build_custom_connector": {
-                                "description": "Develop your own Kafka Connect WebSocket source connector",
-                                "framework": "Kafka Connect Framework",
-                                "effort": "High - requires understanding Kafka Connect internals",
-                                "reference": "https://docs.confluent.io/platform/current/connect/devguide.html"
-                            }
-                        },
-                        "_EXAMPLE_NODEJS_PRODUCER": "const WebSocket = require('ws'); const { Kafka } = require('kafkajs'); const ws = new WebSocket('" + url + "'); const kafka = new Kafka({brokers: ['localhost:9092']}); const producer = kafka.producer(); ws.on('message', async (data) => { await producer.send({topic: '" + topicName + "', messages: [{value: data}]}); });"
+                        "connector.class": "io.conduktor.connect.websocket.WebSocketSourceConnector",
+                        "tasks.max": "1",
+                        "websocket.url": url,
+                        "kafka.topic": topicName,
+                        "websocket.reconnect.enabled": "true",
+                        "websocket.reconnect.interval.ms": "5000",
+                        "websocket.message.queue.size": "10000"
                     }
                 };
             } else if (type === 'sse') {
