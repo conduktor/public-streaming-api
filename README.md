@@ -65,12 +65,12 @@ Test any WebSocket, SSE, or HTTP endpoint instantly in your browser! Click on th
 
 ### Market Data APIs
 
-- **[CoinGecko API](https://www.coingecko.com/en/api)** - Real-time prices for 12,000+ cryptocurrencies. Free tier: 50 calls/minute, no API key needed for basic endpoints.
+- **[CoinGecko API](https://www.coingecko.com/en/api)** - Real-time prices for 12,000+ cryptocurrencies. Free tier: 50 calls/minute, no API key needed for basic endpoints. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd)
   ```
   https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd
   ```
 
-- **[Mempool.space API](https://mempool.space/docs/api)** - Real-time Bitcoin blockchain data including mempool, blocks, transactions. No authentication required.
+- **[Mempool.space API](https://mempool.space/docs/api)** - Real-time Bitcoin blockchain data including mempool, blocks, transactions. No authentication required. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://mempool.space/api/mempool)
   ```
   https://mempool.space/api/mempool
   https://mempool.space/api/blocks/tip/height
@@ -99,7 +99,7 @@ Test any WebSocket, SSE, or HTTP endpoint instantly in your browser! Click on th
 
 ### Aviation & Maritime
 
-- **[OpenSky Network API](https://openskynetwork.github.io/opensky-api/rest.html)** - Real-time flight tracking data from crowd-sourced ADS-B receivers. Free tier: 400 requests/day.
+- **[OpenSky Network API](https://openskynetwork.github.io/opensky-api/rest.html)** - Real-time flight tracking data from crowd-sourced ADS-B receivers. Free tier: 400 requests/day. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://opensky-network.org/api/states/all)
   ```
   https://opensky-network.org/api/states/all
   ```
@@ -118,7 +118,7 @@ Test any WebSocket, SSE, or HTTP endpoint instantly in your browser! Click on th
 
 ### Weather Data
 
-- **[Open-Meteo API](https://open-meteo.com/)** - Free weather API with no API key required. Real-time weather, forecasts, historical data.
+- **[Open-Meteo API](https://open-meteo.com/)** - Free weather API with no API key required. Real-time weather, forecasts, historical data. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&current_weather=true)
   ```
   https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&current_weather=true
   ```
@@ -134,39 +134,39 @@ Test any WebSocket, SSE, or HTTP endpoint instantly in your browser! Click on th
 
 - **[EPA AirNow API](https://docs.airnowapi.org/)** - US air quality data. Free API key with generous limits.
 
-- **[Sensor.Community API](https://github.com/opendata-stuttgart/meta/wiki/EN-APIs)** - Global crowdsourced air quality data from 15,000+ sensors. No authentication required.
+- **[Sensor.Community API](https://github.com/opendata-stuttgart/meta/wiki/EN-APIs)** - Global crowdsourced air quality data from 15,000+ sensors. No authentication required. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://data.sensor.community/airrohr/v1/filter/area=51.3,7.5,10)
   ```
   https://data.sensor.community/airrohr/v1/filter/area=51.3,7.5,10
   ```
 
 ### Water & Flooding
 
-- **[UK Environment Agency Flood API](https://environment.data.gov.uk/flood-monitoring/doc/reference)** - Real-time UK flood monitoring data. No authentication.
+- **[UK Environment Agency Flood API](https://environment.data.gov.uk/flood-monitoring/doc/reference)** - Real-time UK flood monitoring data. No authentication. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://environment.data.gov.uk/flood-monitoring/id/stations)
   ```
   https://environment.data.gov.uk/flood-monitoring/id/stations
   ```
 
-- **[USGS Water Services](https://waterservices.usgs.gov/)** - Real-time stream flow, groundwater, and water quality data for US.
+- **[USGS Water Services](https://waterservices.usgs.gov/)** - Real-time stream flow, groundwater, and water quality data for US. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://waterservices.usgs.gov/nwis/iv/?format=json&sites=01646500&parameterCd=00060,00065)
   ```
   https://waterservices.usgs.gov/nwis/iv/?format=json&sites=01646500&parameterCd=00060,00065
   ```
 
 ### Space Weather & Solar Data
 
-- **[NOAA Space Weather Prediction Center (SWPC)](https://www.swpc.noaa.gov/products-and-data)** - Real-time solar wind, geomagnetic, and space weather data. No authentication.
+- **[NOAA Space Weather Prediction Center (SWPC)](https://www.swpc.noaa.gov/products-and-data)** - Real-time solar wind, geomagnetic, and space weather data. No authentication. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://services.swpc.noaa.gov/products/solar-wind/mag-7-day.json)
   ```
   https://services.swpc.noaa.gov/products/solar-wind/mag-7-day.json
   https://services.swpc.noaa.gov/products/geospace/geospace-1-day.json
   ```
 
-- **[NASA POWER API](https://power.larc.nasa.gov/docs/)** - Solar and meteorological data from NASA satellites. No authentication.
+- **[NASA POWER API](https://power.larc.nasa.gov/docs/)** - Solar and meteorological data from NASA satellites. No authentication. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&longitude=-95.37&latitude=29.76&start=20241201&end=20241201&format=JSON)
   ```
   https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M&community=RE&longitude=-95.37&latitude=29.76&start=20241201&end=20241201&format=JSON
   ```
 
 ### Carbon & Energy
 
-- **[UK Carbon Intensity API](https://carbonintensity.org.uk/)** - Real-time UK electricity carbon intensity. No authentication.
+- **[UK Carbon Intensity API](https://carbonintensity.org.uk/)** - Real-time UK electricity carbon intensity. No authentication. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://api.carbonintensity.org.uk/intensity)
   ```
   https://api.carbonintensity.org.uk/intensity
   https://api.carbonintensity.org.uk/regional
@@ -176,7 +176,7 @@ Test any WebSocket, SSE, or HTTP endpoint instantly in your browser! Click on th
 
 ## Seismic & Natural Events
 
-- **[USGS Earthquake API](https://earthquake.usgs.gov/fdsnws/event/1/)** - Real-time earthquake data globally. No authentication required.
+- **[USGS Earthquake API](https://earthquake.usgs.gov/fdsnws/event/1/)** - Real-time earthquake data globally. No authentication required. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson)
   ```
   https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson
   ```
@@ -234,12 +234,12 @@ Test any WebSocket, SSE, or HTTP endpoint instantly in your browser! Click on th
 
 ### Dictionaries & Reference
 
-- **[Free Dictionary API](https://dictionaryapi.dev/)** - English dictionary definitions. No authentication required.
+- **[Free Dictionary API](https://dictionaryapi.dev/)** - English dictionary definitions. No authentication required. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://api.dictionaryapi.dev/api/v2/entries/en/hello)
   ```
   https://api.dictionaryapi.dev/api/v2/entries/en/hello
   ```
 
-- **[DuckDuckGo Instant Answer API](https://duckduckgo.com/api)** - Instant answers for queries including weather, definitions, calculations.
+- **[DuckDuckGo Instant Answer API](https://duckduckgo.com/api)** - Instant answers for queries including weather, definitions, calculations. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://api.duckduckgo.com/?q=weather&format=json)
   ```
   https://api.duckduckgo.com/?q=weather&format=json
   ```
@@ -250,20 +250,20 @@ Test any WebSocket, SSE, or HTTP endpoint instantly in your browser! Click on th
 
 ### Emergency Services
 
-- **[OpenFEMA API](https://www.fema.gov/about/openfema/api)** - Real-time US disaster declarations, flood maps, and emergency management data. No authentication.
+- **[OpenFEMA API](https://www.fema.gov/about/openfema/api)** - Real-time US disaster declarations, flood maps, and emergency management data. No authentication. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries)
   ```
   https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries
   https://www.fema.gov/api/open/v2/FemaRegions
   ```
 
-- **[NYC Open Data - Fire Incidents](https://data.cityofnewyork.us/)** - Real-time NYC fire department incident data. No authentication.
+- **[NYC Open Data - Fire Incidents](https://data.cityofnewyork.us/)** - Real-time NYC fire department incident data. No authentication. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://data.cityofnewyork.us/resource/8m42-w767.json?$limit=100)
   ```
   https://data.cityofnewyork.us/resource/8m42-w767.json?$limit=100
   ```
 
 ### Health & Disease Tracking
 
-- **[disease.sh COVID-19 API](https://disease.sh/)** - Real-time global COVID-19 statistics. No authentication.
+- **[disease.sh COVID-19 API](https://disease.sh/)** - Real-time global COVID-19 statistics. No authentication. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://disease.sh/v3/covid-19/all)
   ```
   https://disease.sh/v3/covid-19/all
   https://disease.sh/v3/covid-19/countries
@@ -271,13 +271,13 @@ Test any WebSocket, SSE, or HTTP endpoint instantly in your browser! Click on th
 
 ### Economic & Financial Data
 
-- **[World Bank API](https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api-documentation)** - Global economic indicators for 200+ countries. No authentication.
+- **[World Bank API](https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api-documentation)** - Global economic indicators for 200+ countries. No authentication. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://api.worldbank.org/v2/country/us/indicator/NY.GDP.MKTP.CD?format=json&date=2022)
   ```
   https://api.worldbank.org/v2/country/us/indicator/NY.GDP.MKTP.CD?format=json&date=2022
   https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?format=json
   ```
 
-- **[US Treasury Fiscal Data](https://fiscaldata.treasury.gov/api-documentation/)** - US government financial data including debt, revenue, spending. No authentication.
+- **[US Treasury Fiscal Data](https://fiscaldata.treasury.gov/api-documentation/)** - US government financial data including debt, revenue, spending. No authentication. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/debt_to_penny)
   ```
   https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/debt_to_penny
   ```
@@ -298,7 +298,7 @@ Test any WebSocket, SSE, or HTTP endpoint instantly in your browser! Click on th
   https://ws.audioscrobbler.com/2.0/?method=chart.gettopartists&limit=10&format=json
   ```
 
-- **[Radio Browser API](https://www.radio-browser.info/)** - Global internet radio station directory with 30,000+ stations. No authentication.
+- **[Radio Browser API](https://www.radio-browser.info/)** - Global internet radio station directory with 30,000+ stations. No authentication. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://de1.api.radio-browser.info/json/stations/bycountry/usa?limit=100)
   ```
   https://de1.api.radio-browser.info/json/stations/bycountry/usa?limit=100
   https://de1.api.radio-browser.info/json/stations/search?name=jazz
@@ -411,12 +411,12 @@ Test any WebSocket, SSE, or HTTP endpoint instantly in your browser! Click on th
 
 ### Mock Data
 
-- **[JSONPlaceholder](https://jsonplaceholder.typicode.com/)** - Free fake REST API for testing and prototyping.
+- **[JSONPlaceholder](https://jsonplaceholder.typicode.com/)** - Free fake REST API for testing and prototyping. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://jsonplaceholder.typicode.com/posts)
   ```
   https://jsonplaceholder.typicode.com/posts
   ```
 
-- **[Random User Generator](https://randomuser.me/)** - Generate random user data. No authentication.
+- **[Random User Generator](https://randomuser.me/)** - Generate random user data. No authentication. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://randomuser.me/api/)
   ```
   https://randomuser.me/api/
   ```
@@ -425,17 +425,17 @@ Test any WebSocket, SSE, or HTTP endpoint instantly in your browser! Click on th
 
 ## Geographic & Location
 
-- **[REST Countries API](https://restcountries.com/)** - Country data including flags, currencies, languages. No authentication.
+- **[REST Countries API](https://restcountries.com/)** - Country data including flags, currencies, languages. No authentication. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://restcountries.com/v3.1/all)
   ```
   https://restcountries.com/v3.1/all
   ```
 
-- **[IP Geolocation (ipify)](https://www.ipify.org/)** - Get public IP address. No authentication.
+- **[IP Geolocation (ipify)](https://www.ipify.org/)** - Get public IP address. No authentication. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://api.ipify.org?format=json)
   ```
   https://api.ipify.org?format=json
   ```
 
-- **[IP Geolocation (ip-api.com)](https://ip-api.com/)** - Free IP geolocation. No API key required for non-commercial use.
+- **[IP Geolocation (ip-api.com)](https://ip-api.com/)** - Free IP geolocation. No API key required for non-commercial use. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=http://ip-api.com/json/)
   ```
   http://ip-api.com/json/
   ```
