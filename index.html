@@ -639,12 +639,11 @@
 
                 <div style="margin-bottom: 1.5rem; padding: 1rem; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
                     <h4 style="margin: 0 0 0.5rem 0; color: #856404; font-size: 0.95rem;">⚠️ Prerequisites</h4>
+                    <p style="margin: 0 0 0.5rem 0; color: #856404; font-size: 0.875rem;">Install the appropriate Kafka Connect plugin based on the stream protocol:</p>
                     <ul style="margin: 0; padding-left: 1.5rem; color: #856404; font-size: 0.875rem; line-height: 1.6;">
-                        <li>Kafka Connect must be running (default: <code style="background: #fff; padding: 0.1rem 0.3rem; border-radius: 3px;">localhost:8083</code>)</li>
-                        <li><strong>HTTP polling sources:</strong> Install <a href="https://github.com/castorm/kafka-connect-http" target="_blank" style="color: #d97706;">kafka-connect-http</a> plugin ✅</li>
-                        <li><strong>SSE sources:</strong> Install <a href="https://github.com/cjmatta/kafka-connect-sse" target="_blank" style="color: #d97706;">kafka-connect-sse</a> plugin ✅</li>
-                        <li><strong>WebSocket sources:</strong> ❌ No maintained Kafka Connect connector exists - see config for custom solutions</li>
-                        <li>Place plugin JARs in <code style="background: #fff; padding: 0.1rem 0.3rem; border-radius: 3px;">$KAFKA_HOME/plugins/</code> and restart Kafka Connect</li>
+                        <li><strong>HTTP polling (http:// or https://):</strong> <a href="https://github.com/castorm/kafka-connect-http" target="_blank" style="color: #d97706;">kafka-connect-http</a> plugin</li>
+                        <li><strong>Server-Sent Events (SSE):</strong> <a href="https://github.com/cjmatta/kafka-connect-sse" target="_blank" style="color: #d97706;">kafka-connect-sse</a> plugin</li>
+                        <li><strong>WebSocket (ws:// or wss://):</strong> <a href="https://github.com/conduktor/kafka-connect-websocket" target="_blank" style="color: #d97706;">kafka-connect-websocket</a> plugin (Conduktor)</li>
                     </ul>
                 </div>
 
