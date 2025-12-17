@@ -1021,6 +1021,9 @@
         }
 
         function startPolling() {
+            // Stop any existing polling first to prevent duplicates
+            stopPolling();
+
             const interval = parseInt(document.getElementById('pollingInterval').value);
             pollingInterval = setInterval(() => {
                 if (currentHttpUrl) {
