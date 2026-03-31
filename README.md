@@ -72,6 +72,11 @@ Want to stream these real-time sources into Apache Kafka? Check out our **[Kafka
   https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd
   ```
 
+- **[CoinPaprika API](https://api.coinpaprika.com)** - Free crypto market data for 12,000+ coins, 350+ exchanges, tickers, OHLCV, historical prices. 20K calls/month, no API key required. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://api.coinpaprika.com/v1/tickers/btc-bitcoin)
+  ```
+  https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd
+  ```
+
 - **[Mempool.space API](https://mempool.space/docs/api)** - Real-time Bitcoin blockchain data including mempool, blocks, transactions. No authentication required. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://mempool.space/api/mempool)
   ```
   https://mempool.space/api/mempool
