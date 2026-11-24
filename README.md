@@ -73,6 +73,7 @@ Want to stream these real-time sources into Apache Kafka? Check out our **[Kafka
   ```
 
 - **[Mempool.space API](https://mempool.space/docs/api)** - Real-time Bitcoin blockchain data including mempool, blocks, transactions. No authentication required. [🔵 Try it live](https://conduktor.github.io/public-streaming-api/?http=https://mempool.space/api/mempool)
+- **[Sports Odds API](https://apify.com/publicrecords/sports-odds-api)** - Live odds from 24 Kambi-powered sportsbooks (BetRivers, Unibet, Paf...) with best price per outcome (Apify Actor, API + MCP).
   ```
   https://mempool.space/api/mempool
   https://mempool.space/api/blocks/tip/height
